@@ -1,0 +1,14 @@
+name: "CAPSAM-AirQuality"
+navbar:
+  title: "CAPSAM"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+output:
+  html_document:
+    theme: cosmo
+    highlight: textmate
+    
+    

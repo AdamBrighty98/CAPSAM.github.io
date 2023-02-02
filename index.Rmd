@@ -1,0 +1,9 @@
+---
+title: "Homepage"
+---
+
+## Climate and Air Pollution Synergies Assessment Model (CAPSAM)
+
+Welcome to CAPSAM. A quick and simple model designed to assess how future decarbonisation scenarios will impact air quality. 
+
+Fill in the boxes below to more accurately specific your scenario to improve CAPSAM's output and input your scenario data.
