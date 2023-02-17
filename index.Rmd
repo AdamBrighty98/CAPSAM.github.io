@@ -1,9 +1,139 @@
 ---
 title: "Homepage"
+runtime: shiny
 ---
 
 ## Climate and Air Pollution Synergies Assessment Model (CAPSAM)
 
-Welcome to CAPSAM. A quick and simple model designed to assess how future decarbonisation scenarios will impact air quality. 
+Welcome to CAPSAM. A quick and simple model designed to assess how future decarbonisation scenarios will impact air quality.
 
 Fill in the boxes below to more accurately specific your scenario to improve CAPSAM's output and input your scenario data.
+
+```{r, echo=FALSE}
+
+
+# Loading in data - all impact factors, emission factors, and assumption CSV files
+elec_gen_EFs <- read_csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Elec_EFs_kt_TWh.csv")
+impact_factors <- read_csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/UK_to_UK_IFs.csv")
+
+
+# Variables for initial selection
+
+sectors <- c("Electricity Generation", "Building Heating", "Industrial Combustion")
+data_levels_Heating <- c("N/A", "Technologic-specific energy demand (e.g., electricity demand from heat pumps for building heating)", "Number of technologies installed (e.g., number of heat pumps installed)", "Overall sectoral energy demand (e.g., hydrogen demand for building heating)")
+data_levels_Industrial <- c("N/A", "Technologic-specific energy demand (e.g., electricity demand from heat pumps for Iron & Steel)", "Overall sectoral energy demand (e.g., hydrogen demand for industrial combustion)" )
+countries <- c("UK", "England", "Wales", "Scotland", "Northern Ireland")
+impact_factor_choice <- c("UK", "England", "Wales", "Scotland", "Northern Ireland")
+units <- c("TWh", "GWh", "PJ", "TJ", "GJ")
+lifecycle_data <- c("Electricity Generation", "Hydrogen Production", "None of the above")
+
+# Initial Selection Criteria
+
+library(shiny)
+library(ggplot2)
+library(plotly)
+library(tidyverse)
+library(dplyr)
+library(DT)
+
+ui <- fluidPage(
+  tabsetPanel(
+    
+    tabPanel("Scenario Questions",
+         # Selecting which sectors are present in each scenario
+         checkboxGroupInput("sectors", "Select all relevant sectors: ", choices = sectors),    
+         # Deciding on basic levels of information for Building Heating
+         selectInput("dataLevels", "Select the level of detail involved in the building heating scenario. If building heating is not included, select N/A.", choices = data_levels_Heating),    
+         # Deciding on basic levels of information for Industrial Combustion
+  selectInput("dataLevels", "Select the level of detail involved in the industrial combustion scenario. If industrial combustion is not included, select N/A.", choices = data_levels_Industrial),  
+        # Selecting country
+  selectInput("countries", "Which country/region is your scenario looking at?", choices = countries), 
+        # Selecting impacted country
+  selectInput("impactCountry", "Choose Impacted Region:", choices = impact_factor_choice)
+  
+  ),
+  
+  tabPanel("Set Parameters and Import csv",
+           
+           # Selecting lifecycle aspects
+  checkboxGroupInput("lifecycle", "What lifecycle information does your scenario contain? Select all relevant boxes", choices = lifecycle_data),
+  
+  # Selecting base and end years
+  numericInput("baseYear", "What is your base (initial) year of your scenario?", value = 0),
+  numericInput("endYear", "What is the end year of your scenario?", value = 0),  
+           
+  # Selecting units found in each scenario
+  selectInput("units", "Please Select the Units used within your scenario: ", choices = units),
+  
+  # Inputting elec gen CSV input
+  fileInput("elec_file", "Select your electricity generation file: "),
+           
+  actionButton("simulate", "Simulate")
+  )
+        
+  ),
+  
+  mainPanel(
+    h1(textOutput("caption_co2")),
+    tableOutput("elec_co2"),
+    textOutput("desc"),
+    h2(textOutput("caption_nox")),
+    plotOutput(("elec_nox")),
+    h3(textOutput("caption_pm2.5")),
+    plotOutput("elec_pm2.5")
+    
+  ),
+  
+  
+  
+)
+
+# Server-side logic
+
+server <- function(input, output) {
+  
+   input_elec_file <- reactive({
+     if(is.null(input$elec_file)) {
+       return("")
+     }
+  
+     # reading input file now on server side
+     read_csv(file = input$elec_file$datapath)
+  
+   })
+  
+   # Server side logic - electricity file input with other standard csv files to get emissions and impacts
+
+     # Output name on server side must match output name (e.g., plotOutput on UI side!)
+     output$elec_co2 <- renderTable({
+       
+       req(input_elec_file())
+       
+       df_co2_emissions <- input_elec_file()
+       df_co2_emissions <- na.omit(df_co2_emissions)
+  
+       for (i in 2 : (end_year - base_year)){
+       
+        df_co2_emissions[3,i] <- c(df_co2_emissions[3,i] * elec_gen_EFs[6,3])
+        df_co2_emissions[4,i] <- c(df_co2_emissions[4,i] * elec_gen_EFs[11,3])
+        df_co2_emissions[5,i] <- c(df_co2_emissions[5,i] * elec_gen_EFs[2,3])
+        df_co2_emissions[6,i] <- c(df_co2_emissions[6,i] * elec_gen_EFs[9,3])
+        df_co2_emissions[7,i] <- c(df_co2_emissions[7,i] * elec_gen_EFs[4,3])
+        df_co2_emissions[8,i] <- c(df_co2_emissions[8,i] * elec_gen_EFs[1,3])
+        df_co2_emissions[9,i] <- c(df_co2_emissions[9,i] * elec_gen_EFs[8,3])
+        df_co2_emissions[10,i] <- c(df_co2_emissions[10,i] * elec_gen_EFs[5,3])
+
+       }
+       
+       df_co2_emissions
+       
+     })
+     
+     
+     
+  
+}
+
+shinyApp(ui = ui, server = server)
+ 
+```

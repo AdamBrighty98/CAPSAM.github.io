@@ -13,10 +13,10 @@
 
 <title>Homepage</title>
 
-<script src="site_libs/header-attrs-2.17/header-attrs.js"></script>
+<script src="site_libs/header-attrs-2.20/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<link href="site_libs/bootstrap-3.3.5/css/cerulean.min.css" rel="stylesheet" />
 <script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
 <script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
@@ -30,8 +30,6 @@
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
-<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
-<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
 
 <style type="text/css">
   code{white-space: pre-wrap;}
@@ -42,18 +40,109 @@
   ul.task-list{list-style: none;}
     </style>
 
-<style type="text/css">code{white-space: pre;}</style>
-<script type="text/javascript">
-if (window.hljs) {
-  hljs.configure({languages: []});
-  hljs.initHighlightingOnLoad();
-  if (document.readyState && document.readyState === "complete") {
-    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
   }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
 }
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    background-color: #2a211c;
+    color: #bdae9d;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #bdae9d;  padding-left: 4px; }
+div.sourceCode
+  { color: #bdae9d; background-color: #2a211c; }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ffff00; } /* Alert */
+code span.an { color: #0066ff; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bn { color: #44aa43; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #43a8ed; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #049b0a; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #0066ff; font-weight: bold; font-style: italic; } /* Comment */
+code span.do { color: #0066ff; font-style: italic; } /* Documentation */
+code span.dt { text-decoration: underline; } /* DataType */
+code span.dv { color: #44aa43; } /* DecVal */
+code span.er { color: #ffff00; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #44aa43; } /* Float */
+code span.fu { color: #ff9358; font-weight: bold; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #0066ff; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #43a8ed; font-weight: bold; } /* Keyword */
+code span.op { } /* Operator */
+code span.pp { font-weight: bold; } /* Preprocessor */
+code span.sc { color: #049b0a; } /* SpecialChar */
+code span.ss { color: #049b0a; } /* SpecialString */
+code span.st { color: #049b0a; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #049b0a; } /* VerbatimString */
+code span.wa { color: #ffff00; font-weight: bold; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
 </script>
-
-
 
 
 
@@ -256,7 +345,7 @@ $(document).ready(function () {
   </div><!--/.container -->
 </div><!--/.navbar -->
 
-<div id="header">
+<div id="section-header">
 
 
 
@@ -265,13 +354,60 @@ $(document).ready(function () {
 </div>
 
 
-<div id="climate-and-air-pollution-synergies-assessment-model-capsam"
+<div
+id="section-climate-and-air-pollution-synergies-assessment-model-capsam"
 class="section level2">
 <h2>Climate and Air Pollution Synergies Assessment Model (CAPSAM)</h2>
 <p>Welcome to CAPSAM. A quick and simple model designed to assess how
 future decarbonisation scenarios will impact air quality.</p>
 <p>Fill in the boxes below to more accurately specific your scenario to
 improve CAPSAM’s output and input your scenario data.</p>
+<iframe data-deferred-src="app25b8e0ed8b6da57aa9367eb3a42831d8/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+<iframe data-deferred-src="app534b78c27b2bb3f6ec28efdf86c2333c/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+<p>What country is your scenario looking at?</p>
+<div class="sourceCode" id="section-cb1"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="section-cb1-1"><a href="#section-cb1-1" aria-hidden="true" tabindex="-1"></a>countries <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;UK&quot;</span>, <span class="st">&quot;England&quot;</span>, <span class="st">&quot;Wales&quot;</span>, <span class="st">&quot;Scotland&quot;</span>, <span class="st">&quot;Northern Ireland&quot;</span>)</span>
+<span id="section-cb1-2"><a href="#section-cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb1-3"><a href="#section-cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="section-cb1-4"><a href="#section-cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb1-5"><a href="#section-cb1-5" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="section-cb1-6"><a href="#section-cb1-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="section-cb1-7"><a href="#section-cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">selectInput</span>(<span class="st">&quot;countries&quot;</span>, <span class="st">&quot;Which country/region is your scenario looking at?&quot;</span>, <span class="at">choices =</span> countries)</span>
+<span id="section-cb1-8"><a href="#section-cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="do">## radioButtons(&quot;countries&quot;, &quot;Country: &quot;, countries)</span></span>
+<span id="section-cb1-9"><a href="#section-cb1-9" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="section-cb1-10"><a href="#section-cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb1-11"><a href="#section-cb1-11" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="section-cb1-12"><a href="#section-cb1-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="section-cb1-13"><a href="#section-cb1-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="section-cb1-14"><a href="#section-cb1-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb1-15"><a href="#section-cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<iframe data-deferred-src="appbd1c8a4f2b8a626a2dba938584432fb3/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+<p>What air quality impacts do you intend to look at? E.g. Impacts of UK
+pollutant emissions on UK, or England emissions on Wales etc.</p>
+<div class="sourceCode" id="section-cb2"><pre
+class="sourceCode r"><code class="sourceCode r"><span id="section-cb2-1"><a href="#section-cb2-1" aria-hidden="true" tabindex="-1"></a>impact_factor_choice <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;UK&quot;</span>, <span class="st">&quot;England&quot;</span>, <span class="st">&quot;Wales&quot;</span>, <span class="st">&quot;Scotland&quot;</span>, <span class="st">&quot;Northern Ireland&quot;</span>)</span>
+<span id="section-cb2-2"><a href="#section-cb2-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb2-3"><a href="#section-cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb2-4"><a href="#section-cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="section-cb2-5"><a href="#section-cb2-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb2-6"><a href="#section-cb2-6" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="section-cb2-7"><a href="#section-cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">selectInput</span>(<span class="st">&quot;impactCountry&quot;</span>, <span class="st">&quot;Choose Impacted Region:&quot;</span>, <span class="at">choices =</span> impact_factor_choice),</span>
+<span id="section-cb2-8"><a href="#section-cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="do">## radioButtons(&quot;impactCountry&quot;, &quot;Choose Impacted Region&quot;, impact_factor_choice)</span></span>
+<span id="section-cb2-9"><a href="#section-cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="section-cb2-10"><a href="#section-cb2-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb2-11"><a href="#section-cb2-11" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="section-cb2-12"><a href="#section-cb2-12" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="section-cb2-13"><a href="#section-cb2-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="section-cb2-14"><a href="#section-cb2-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="section-cb2-15"><a href="#section-cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">shinyApp</span>(ui, server)</span></code></pre></div>
+<iframe data-deferred-src="app8d44906148d843559731c47f418d9e8b/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+<p>What units of energy are used within your selected scenario?</p>
+<iframe data-deferred-src="app2424e2279423915211ec3e7bf4a3e0d6/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
+<p>Do you wish to investigate impacts of sector electrification and
+hydrogen usage?</p>
+<p>If yes, do you have data for hydrogen production and electricity
+generation available? General assumptions will be provided if not.</p>
+<iframe data-deferred-src="app794cdc62419a8771989aa06584c0e835/?w=&amp;__subapp__=1" width="100%" height="400" class="shiny-frame shiny-frame-deferred"></iframe>
 </div>
 
 
@@ -296,7 +432,7 @@ $(document).ready(function () {
 
 <script>
 $(document).ready(function () {
-  window.buildTabsets("TOC");
+  window.buildTabsets("section-TOC");
 });
 
 $(document).ready(function () {
