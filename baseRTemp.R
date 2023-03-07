@@ -11,6 +11,8 @@ library(hrbrthemes)
 # Reading in impact factors and emission factors
 elec_gen_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Elec_EFs_kt_TWh.csv")
 impact_factors <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/UK_to_UK_IFs.csv")
+dom_heat_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Res_Heat_EFs_kt_TWh.csv")
+pub_heat_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Pub_Heat_EFs_kt_TWh.csv")
 
 # Simplifying names of emission factors - setting them to recognisable names
 # CO2 emission factors
@@ -207,6 +209,45 @@ df_elec_pm25_impacts_per_Unit$Coal <- df_elec_pm25_impacts_per_Unit$Coal / data$
 df_elec_pm25_impacts_per_Unit$Waste <- df_elec_pm25_impacts_per_Unit$Waste / data$Sum
 df_elec_pm25_impacts_per_Unit$`Other thermal` <- df_elec_pm25_impacts_per_Unit$`Other thermal` / data$Sum
 df_elec_pm25_impacts_per_Unit$`Total Impact per Unit Energy` <- rowSums(df_elec_pm25_impacts_per_Unit[, 2:9], na.rm = TRUE) 
+
+
+
+dh_data <- read.csv("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM_CSVs/DomHeat_Template_Run_FullData.csv", fileEncoding='UTF-8-BOM', header = FALSE)
+
+colnames = as.character(dh_data[ , 1])
+dh_data = data.frame(t(dh_data[ , -1]))
+colnames(dh_data) = colnames
+dh_data$Sum <- rowSums(dh_data[ , 2:28], na.rm = TRUE)
+dh_data$Year <- format(dh_data$Year, 0)
+
+df_dh_co2_emissions <- dh_data[, 1:17]
+
+df_dh_co2_emissions$`Biofuel Boiler` <- df_dh_co2_emissions$`Biofuel Boiler` * dh_co2_EF_gasoil_boiler
+df_dh_co2_emissions$`ASHP + Biofuel Boiler (Biofuel)` <- df_dh_co2_emissions$`ASHP + Biofuel Boiler (Biofuel)` * dh_co2_EF_gasoil_boiler
+df_dh_co2_emissions$`Biomass Boiler` <- df_dh_co2_emissions$`Biomass Boiler` * dh_co2_EF_woodpellet_boiler
+df_dh_co2_emissions$`Biomass CHP` <- df_dh_co2_emissions$`Biomass CHP` * ph_co2_EF_biomass_boiler
+df_dh_co2_emissions$`District Heating (Biomass)` <- df_dh_co2_emissions$`District Heating (Biomass)` * ph_co2_EF_biomass_boiler
+df_dh_co2_emissions$`District Heating (Biomethane)` <- df_dh_co2_emissions$`District Heating (Biomethane)` * ph_co2_EF_gas_boiler
+df_dh_co2_emissions$`District Heating (Gas)` <- df_dh_co2_emissions$`District Heating (Gas)` * ph_co2_EF_gas_boiler
+df_dh_co2_emissions$`Gas Boiler` <- df_dh_co2_emissions$`Gas Boiler` * dh_co2_EF_gas_boiler
+df_dh_co2_emissions$`Gas CHP` <- df_dh_co2_emissions$`Gas CHP` * ph_co2_EF_gas_boiler
+df_dh_co2_emissions$`District Heating (Hydrogen)` <- df_dh_co2_emissions$`District Heating (Hydrogen)` * ph_co2_EF_hydrogen_boiler
+df_dh_co2_emissions$`Gas Boiler - H2-NG Blend` <- df_dh_co2_emissions$`Gas Boiler - H2-NG Blend` * dh_co2_EF_hydrogen_natgas_boiler
+df_dh_co2_emissions$`Gas CHP - H2-NG Blend` <- df_dh_co2_emissions$`Gas CHP - H2-NG Blend` * ph_co2_EF_hydrogen_natgas_boiler
+df_dh_co2_emissions$`ASHP + Hydrogen Boiler (Hydrogen)` <- df_dh_co2_emissions$`ASHP + Hydrogen Boiler (Hydrogen)` * dh_co2_EF_hydrogen_boiler
+df_dh_co2_emissions$`Hydrogen Boiler` <- df_dh_co2_emissions$`Hydrogen Boiler` * dh_co2_EF_hydrogen_boiler
+df_dh_co2_emissions$`Oil Boiler` <- df_dh_co2_emissions$`Oil Boiler` * dh_co2_EF_gasoil_boiler
+df_dh_co2_emissions$`Community Heating` <- df_dh_co2_emissions$`Community Heating` * ph_co2_EF_fueloil_boiler
+df_dh_co2_emissions$`Total Emissions` <- rowSums(df_dh_co2_emissions[, 2:17], na.rm = TRUE)
+
+
+long_df_dh_co2_emissions <- melt(df_dh_co2_emissions[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
+
+ggplot(long_df_dh_co2_emissions, aes(Year, Emissions, group = Source, col = Source)) +
+         geom_line() + 
+         labs(y = "CO2 Emissions (kt)")
+
+
 
 
 
