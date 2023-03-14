@@ -16,7 +16,10 @@ Fill in the boxes below to more accurately specific your scenario to improve CAP
 elec_gen_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Elec_EFs_kt_TWh.csv")
 dom_heat_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Res_Heat_EFs_kt_TWh.csv")
 pub_heat_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Pub_Heat_EFs_kt_TWh.csv")
+ind_com_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Ind_Com_EFs_kt_TWh.csv")
+hyd_prod_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Hydrogen_Production_EFs_kt_TWh.csv")
 impact_factors <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/UK_to_UK_IFs.csv")
+
 
 
 # Simplifying names of emission factors - setting them to recognisable names
@@ -148,6 +151,68 @@ ph_pm25_IF_public <- impact_factors[11,6]
 
 #################################################################################################
 
+# Industrial Combustion Emission and Impact Factors
+# Iron and Steel CO2 Emission Factors
+ironsteel_co2_EF_coal <- ind_com_EFs[1,3]
+ironsteel_co2_EF_coke <- ind_com_EFs[2,3]
+ironsteel_co2_EF_fueloil <- ind_com_EFs[3,3]
+ironsteel_co2_EF_gasoil <- ind_com_EFs[4,3]
+ironsteel_co2_EF_lpg <- ind_com_EFs[5,3]
+ironsteel_co2_EF_gas <- ind_com_EFs[6,3]
+ironsteel_co2_EF_hydrogen <- ind_com_EFs[7,3]
+ironsteel_co2_EF_biomass <- ind_com_EFs[8,3]
+
+# Iron and Steel NOx Emission Factors
+ironsteel_nox_EF_coal <- ind_com_EFs[1,4]
+ironsteel_nox_EF_coke <- ind_com_EFs[2,4]
+ironsteel_nox_EF_fueloil <- ind_com_EFs[3,4]
+ironsteel_nox_EF_gasoil <- ind_com_EFs[4,4]
+ironsteel_nox_EF_lpg <- ind_com_EFs[5,4]
+ironsteel_nox_EF_gas <- ind_com_EFs[6,4]
+ironsteel_nox_EF_hydrogen <- ind_com_EFs[7,4]
+ironsteel_nox_EF_biomass <- ind_com_EFs[8,4]
+
+# Iron and Steel PM2.5 Emission Factors
+ironsteel_pm25_EF_coal <- ind_com_EFs[1,5]
+ironsteel_pm25_EF_coke <- ind_com_EFs[2,5]
+ironsteel_pm25_EF_fueloil <- ind_com_EFs[3,5]
+ironsteel_pm25_EF_gasoil <- ind_com_EFs[4,5]
+ironsteel_pm25_EF_lpg <- ind_com_EFs[5,5]
+ironsteel_pm25_EF_gas <- ind_com_EFs[6,5]
+ironsteel_pm25_EF_hydrogen <- ind_com_EFs[7,5]
+ironsteel_pm25_EF_biomass <- ind_com_EFs[8,5]
+
+# Iron and Steel Impact Factors
+ironsteel_nox_IF <- impact_factors[14,7]
+ironsteel_pm25_IF <- impact_factors[14,6]
+
+#################################################################################################
+
+# Hydrogen Production Emission Factors and Impact Factors
+# Hydrogen CO2 Emission Factors
+hyd_prod_co2_EF_grey <- hyd_prod_EFs[1,4]
+hyd_prod_co2_EF_blue <- hyd_prod_EFs[2,4]
+hyd_prod_co2_EF_blueFGR <- hyd_prod_EFs[3,4]
+hyd_prod_co2_EF_biomass_gasification <- hyd_prod_EFs[4,4]
+
+# Hydrogen NOx Emission Factors
+hyd_prod_nox_EF_grey <- hyd_prod_EFs[1,6]
+hyd_prod_nox_EF_blue <- hyd_prod_EFs[2,6]
+hyd_prod_nox_EF_blueFGR <- hyd_prod_EFs[3,6]
+hyd_prod_nox_EF_biomass_gasification <- hyd_prod_EFs[4,6]
+
+# Hydrogen PM2.5 Emission Factors
+hyd_prod_pm25_EF_grey <- hyd_prod_EFs[1,7]
+hyd_prod_pm25_EF_blue <- hyd_prod_EFs[2,7]
+hyd_prod_pm25_EF_blueFGR <- hyd_prod_EFs[3,7]
+hyd_prod_pm25_EF_biomass_gasification <- hyd_prod_EFs[4,7]
+
+
+# Hydrogen production Impact Factors - Using small_power_gas as a proxy!
+hyd_prod_nox_IF_Gas <- impact_factors[1,7]
+hyd_prod_pm25_IF_Gas <- impact_factors[1,6]
+
+
 # Variables for initial selection
 
 sectors <- c("Electricity Generation", "Building Heating", "Industrial Combustion")
@@ -222,10 +287,16 @@ ui <- dashboardPage(skin = "purple",
           fileInput("elec_file", "Select your electricity generation file: "),
          
          # Inputting domestic heat csv input
-         fileInput("dh_file", "Select your domestic combustion file:"),
+         fileInput("dh_file", "Select your domestic combustion file: "),
          
          # Inputting public and commercial heat csv input
          fileInput("ph_file", "Select your public and commercial combustion file: "),
+         
+         # Inputting industrial combustion csv file
+         fileInput("ind_file", "Select your industrial combustion file: "),
+         
+         # Inputting Hydrogen production csv file
+         fileInput("hyd_file", "Select your hydrogen production file: "),
            
           actionButton("simulate", "Simulate")
     
@@ -246,15 +317,21 @@ ui <- dashboardPage(skin = "purple",
   
   tabBox(title = "Results", width = 12,
     
-    tabPanel("CO2 Emissions - Electricity", h1(textOutput("elec_caption_co2")), plotOutput("elec_co2"), downloadButton("download_elec_co2", "Download")),
-    tabPanel("NOx PWMC Impact - Electricity", h2(textOutput("elec_caption_nox")), plotOutput("elec_nox")),
-    tabPanel("PM2.5 PWMC Impact - Electricity", h3(textOutput("elec_caption_pm2.5")), plotOutput("elec_pm25")),
-    tabPanel("CO2 Emissions - Domestic Heating", h1(textOutput("dh_caption_co2")), plotOutput("dh_co2")),
-    tabPanel("NOx PWMC Impact - Domestic Heating", h2(textOutput("dh_caption_nox")), plotOutput("dh_nox")),
-    tabPanel("PM2.5 PWMC Impact - Domestic Heating", h3(textOutput("dh_caption_pm2.5")), plotOutput("dh_pm25")),
-    tabPanel("CO2 Emissions - Public Heating", h1(textOutput("ph_caption_co2")), plotOutput("ph_co2")),
-    tabPanel("NOx PWMC Impact - Public Heating", h2(textOutput("ph_caption_nox")), plotOutput("ph_nox")),
-    tabPanel("PM2.5 PWMC Impact - Public Heating", h3(textOutput("ph_caption_pm2.5")), plotOutput("ph_pm25"))
+    tabPanel("Electricity", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("elec_co2"), plotlyOutput("elec_nox"), plotlyOutput("elec_pm25"), downloadButton("download_elec_co2", "Download")))),
+    tabPanel("Domestic Heating", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("dh_co2"), plotlyOutput("dh_nox"), plotlyOutput("dh_pm25")))),
+    tabPanel("Public and Commercial Heating", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("ph_co2"), plotlyOutput("ph_nox"), plotlyOutput("ph_pm25")))),
+    tabPanel("Hydrogen Production", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("hydrogen_co2"), plotlyOutput("hydrogen_nox"), plotlyOutput("hydrogen_pm25")))),
+    tabPanel("Iron & Steel", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("ironsteel_co2"), plotlyOutput("ironsteel_nox"), plotlyOutput("ironsteel_pm25")))),
+    tabPanel("Non-Ferrous Metals", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("nfm_co2"), plotlyOutput("nfm_nox"), plotlyOutput("nfm_pm25")))),
+    tabPanel("Chemicals", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("chem_co2"), plotlyOutput("chem_nox"), plotlyOutput("chem_pm25")))),
+    tabPanel("Paper and Pulp", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("PaP_co2"), plotlyOutput("PaP_nox"), plotlyOutput("PaP_pm25")))),
+    tabPanel("Food and Beverages", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("food_co2"), plotlyOutput("food_nox"), plotlyOutput("food_pm25")))),
+    tabPanel("Minerals", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("min_co2"), plotlyOutput("min_nox"), plotlyOutput("min_pm25")))),
+    tabPanel("Textiles and Leather", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("text_co2"), plotlyOutput("text_nox"), plotlyOutput("text_pm25")))),
+    tabPanel("Construction/NRMM", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("con_co2"), plotlyOutput("con_nox"), plotlyOutput("con_pm25")))),
+    
+    # Other Industries - 1A2gviii - Mech Eng, Elec Eng, Vehicles, Other Ind
+    tabPanel("Other Industries", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("other_co2"), plotlyOutput("other_nox"), plotlyOutput("other_pm25")))),
   
   )),
         
@@ -273,77 +350,105 @@ ui <- dashboardPage(skin = "purple",
 server <- function(input, output, session) {
   
    input_elec_file <- reactive({
-      if(is.null(input$elec_file)) {
+      
+     if(is.null(input$elec_file)) {
         return("")
       }
     
-      # reading input file now on server side
-      read.csv(file = input$elec_file$datapath, fileEncoding='UTF-8-BOM', header = FALSE)
-    
+      input_elec_file <- read.csv(file = input$elec_file$datapath, fileEncoding='UTF-8-BOM', header = FALSE)
+        
+        colnames <- as.character(input_elec_file[ , 1])
+        input_elec_file = data.frame(t(input_elec_file[ , -1])) 
+        colnames(input_elec_file) <- colnames
+        
+        return(input_elec_file)
     })
    
+   
     input_dh_file <- reactive({
+      
       if(is.null(input$dh_file)) {
         return("")
       }
     
-      # reading input file now on server side
-      read.csv(file = input$dh_file$datapath, fileEncoding='UTF-8-BOM', header = FALSE)
+     input_dh_file <- read.csv(file = input$dh_file$datapath, fileEncoding='UTF-8-BOM', header = FALSE)
+     
+     colnames <- as.character(input_dh_file[ , 1])
+     input_dh_file = data.frame(t(input_dh_file[ , -1]))
+     colnames(input_dh_file) <- colnames
+     
+     return(input_dh_file)
     
     })
     
      input_ph_file <- reactive({
-      if(is.null(input$ph_file)) {
+      
+       if(is.null(input$ph_file)) {
         return("")
       }
     
       # reading input file now on server side
-      read.csv(file = input$ph_file$datapath, fileEncoding='UTF-8-BOM', header = FALSE)
+      input_ph_file <- read.csv(file = input$ph_file$datapath, fileEncoding='UTF-8-BOM', header = FALSE)
+      
+      colnames <- as.character(input_ph_file[ , 1])
+      input_ph_file = data.frame(t(input_ph_file[ , -1]))
+      colnames(input_ph_file) <- colnames
+      
+      return(input_ph_file)
     
     })
+     
+     input_ind_file <- reactive({
+       
+      if(is.null(input$ind_file)) {
+        
+        return("")
+      }
+       
+       input_ind_file <- read.csv(file = input$ind_file$datapath, fileEncoding = 'UTF-8-BOM', header = FALSE)
+       
+       colnames <- as.character(input_ind_file[ , 1])
+       input_ind_file = data.frame(t(input_ind_file[ , -1]))
+       colnames(input_ind_file) <- colnames
+      
+       return(input_ind_file)
+       
+     })
+     
+     input_hyd_file <- reactive({
+       
+       if(is.null(input$hyd_file)) {
+         
+         return("")
+         
+       }
+       
+       input_hyd_file <- read.csv(file = input$hyd_file$datapath, fileEncoding = 'UTF-8-BOM', header = FALSE)
+       
+       colnames <- as.character(input_hyd_file[ , 1])
+       input_hyd_file = data.frame(t(input_hyd_file[ , -1]))
+       colnames(input_hyd_file) <- colnames
+      
+       return(input_hyd_file)
+       
+     })
+     
+     
+     
    
 ###########################################################################################################################################
-     
-     # elec_gen_data <- reactive({
-     #   
-     #   elec_data <- input_elec_file()
-     #   
-     #  # Rotating csv from horizontal to vertical - easier for multiplication
-     #  colnames = as.character(elec_data[ , 1])
-     #  elec_data = data.frame(t(elec_data[ , -1]))
-     #  colnames(elec_data) = colnames
-     #  # Adding Sum column at end of elec data - for PWMC Impacts per Unit Energy
-     #  elec_data$Sum <- rowSums(elec_data[, 2:16], na.rm = TRUE)
-     #  # Removing decimals from year (common syntax) - set to zero decimals in elec_data will roll over!
-     #  elec_data$Year <- format(elec_data$Year, 0)
-     #   
-     # })
-     
-     
      
      # Electricity Generation
      
   # CO2 Emissions - line plot from elec gen (flipped to long)
    
-     output$elec_co2 <- renderPlot({
+     output$elec_co2 <- renderPlotly({
         
       req(input_elec_file())
-       
-       elec_data <- input_elec_file()
-       
-      # Rotating csv from horizontal to vertical - easier for multiplication
-      colnames = as.character(elec_data[ , 1])
-      elec_data = data.frame(t(elec_data[ , -1]))
-      colnames(elec_data) = colnames
-      # Adding Sum column at end of elec data - for PWMC Impacts per Unit Energy
-      elec_data$Sum <- rowSums(elec_data[, 2:16], na.rm = TRUE)
-      # Removing decimals from year (common syntax) - set to zero decimals in elec_data will roll over!
-      elec_data$Year <- format(elec_data$Year, 0)
-       
-       
       
+       #input_elec_file$Sum <- rowSums(input_elec_file()[, 2:16], na.rm = TRUE) 
       
-       df_elec_co2_emissions <- elec_data[, 1:9]
+       df_elec_co2_emissions <- input_elec_file()[, 1:9]
        
        df_elec_co2_emissions$Biomass <- df_elec_co2_emissions$Biomass * elec_co2_EF_Biomass
        df_elec_co2_emissions$BECCS <- df_elec_co2_emissions$BECCS * elec_co2_EF_BECCS
@@ -359,51 +464,30 @@ server <- function(input, output, session) {
        long_df_elec_co2_emissions <- melt(df_elec_co2_emissions[, 1:9], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
 
    
-        ggplot(long_df_elec_co2_emissions,
-               aes(Year, Emissions, group = Source, col = Source)) +
+        p <- ggplot(long_df_elec_co2_emissions,
+               aes(Year, Emissions, col = Source)) +
         geom_line() + 
         labs(y = "CO2 Emissions (kt)")
+        
+        ggplotly(p)
         
         
      })
      
      #########################################################################################################
      
-     output$download_elec_co2 <- downloadHandler({
-       
-       filename = function() {
-         paste("elec_co2_data-", Sys.Date(), ".csv", sep = "")
-       }
-       
-       content = function(file) {
-         
-         write.csv(elec_co2$df_elec_co2_emissions(), file)
-         
-       }
-     })
      
      # NOx PWMC Impacts (currently not weighted per unit energy)
      
      
-      output$elec_nox <- renderPlot({
+      output$elec_nox <- renderPlotly({
         
       req(input_elec_file())
-       
-       elec_data <- input_elec_file()
-       
-      # Rotating csv from horizontal to vertical - easier for multiplication
-      colnames = as.character(elec_data[ , 1])
-      elec_data = data.frame(t(elec_data[ , -1]))
-      colnames(elec_data) = colnames
-      # Adding Sum column at end of elec data - for PWMC Impacts per Unit Energy
-      elec_data$Sum <- rowSums(elec_data[, 2:16], na.rm = TRUE)
-      # Removing decimals from year (common syntax) - set to zero decimals in elec_data will roll over!
-      elec_data$Year <- format(elec_data$Year, 0)
-      
-      
-       
-       
-       df_elec_nox_emissions <- elec_data[, 1:9]
+     
+      # # Adding Sum column at end of elec data - for PWMC Impacts per Unit Energy
+      # elec_data$Sum <- rowSums(elec_data[, 2:16], na.rm = TRUE)
+  
+       df_elec_nox_emissions <- input_elec_file()[, 1:9]
        
        df_elec_nox_emissions$Biomass <- df_elec_nox_emissions$Biomass * elec_nox_EF_Biomass
        df_elec_nox_emissions$BECCS <- df_elec_nox_emissions$BECCS * elec_nox_EF_BECCS
@@ -416,7 +500,6 @@ server <- function(input, output, session) {
        df_elec_nox_emissions$`Total Emissions` <- rowSums(df_elec_nox_emissions[, 2:9], na.rm = TRUE)
        
        # Producing PWMC Impacts using UK-to-UK impact factors 
-       # Copying - may not need to include new Sums table as could be carried over?
        df_elec_nox_impacts <- df_elec_nox_emissions[,1:9]
 
        # pNOx Impacts from electricity generation
@@ -434,9 +517,11 @@ server <- function(input, output, session) {
        long_df_elec_nox_impacts <- melt(df_elec_nox_impacts[, 1:9], id.vars = "Year", variable.name = "Source", value.name = "PWMC", na.rm = TRUE)
 
    
-        ggplot(long_df_elec_nox_impacts, aes(Year, PWMC, group = Source, col = Source)) +
+        p <- ggplot(long_df_elec_nox_impacts, aes(Year, PWMC, col = Source)) +
         geom_line() + 
         labs(y = "NOx PWMC Impact (ng m-3)")
+        
+        ggplotly(p)
         
         
      })   
@@ -445,25 +530,15 @@ server <- function(input, output, session) {
      
      # PM2.5 PWMC Impacts (currently not weighted per unit energy)
      
-     output$elec_pm25 <- renderPlot({
+     output$elec_pm25 <- renderPlotly({
         
       req(input_elec_file())
        
-       elec_data <- input_elec_file()
-       
-      # Rotating csv from horizontal to vertical - easier for multiplication
-      colnames = as.character(elec_data[ , 1])
-      elec_data = data.frame(t(elec_data[ , -1]))
-      colnames(elec_data) = colnames
-      # Adding Sum column at end of elec data - for PWMC Impacts per Unit Energy
-      elec_data$Sum <- rowSums(elec_data[, 2:16], na.rm = TRUE)
-      # Removing decimals from year (common syntax) - set to zero decimals in elec_data will roll over!
-      elec_data$Year <- format(elec_data$Year, 0)
       
-      
+      # elec_data$Sum <- rowSums(elec_data[, 2:16], na.rm = TRUE)
        
        
-       df_elec_pm25_emissions <- elec_data[, 1:9]
+       df_elec_pm25_emissions <- input_elec_file()[, 1:9]
        
        
        df_elec_pm25_emissions$Biomass <- df_elec_pm25_emissions$Biomass * elec_pm25_EF_Biomass
@@ -494,9 +569,11 @@ server <- function(input, output, session) {
        long_df_elec_pm25_impacts <- melt(df_elec_pm25_impacts[, 1:9], id.vars = "Year", variable.name = "Source", value.name = "PWMC", na.rm = TRUE)
 
    
-        ggplot(long_df_elec_pm25_impacts, aes(Year, PWMC, group = Source, col = Source)) +
+        p <- ggplot(long_df_elec_pm25_impacts, aes(Year, PWMC, col = Source)) +
         geom_line() + 
         labs(y = "PM2.5 PWMC Impact (ng m-3)")
+        
+        ggplotly(p)
         
         
      })   
@@ -507,19 +584,14 @@ server <- function(input, output, session) {
      
      # Domestic Heating CO2 Emissions
      
-     output$dh_co2 <- renderPlot({
+     output$dh_co2 <- renderPlotly({
        
        req(input_dh_file())
        
-       dh_data <- input_dh_file()
+       #dh_data$Sum <- rowSums(dh_data[ , 2:28], na.rm = TRUE)
        
-       colnames = as.character(dh_data[ , 1])
-       dh_data = data.frame(t(dh_data[ , -1]))
-       colnames(dh_data) = colnames
-       dh_data$Sum <- rowSums(dh_data[ , 2:28], na.rm = TRUE)
-       dh_data$Year <- format(dh_data$Year, 0)
        
-       df_dh_co2_emissions <- dh_data[, 1:17]
+       df_dh_co2_emissions <- input_dh_file()[, 1:17]
        
        df_dh_co2_emissions$`Biofuel Boiler` <- df_dh_co2_emissions$`Biofuel Boiler` * dh_co2_EF_gasoil_boiler
        df_dh_co2_emissions$`ASHP + Biofuel Boiler (Biofuel)` <- df_dh_co2_emissions$`ASHP + Biofuel Boiler (Biofuel)` * dh_co2_EF_gasoil_boiler
@@ -542,9 +614,11 @@ server <- function(input, output, session) {
        
        long_df_dh_co2_emissions <- melt(df_dh_co2_emissions[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
        
-       ggplot(long_df_dh_co2_emissions, aes(Year, Emissions, group = Source, col = Source)) +
+       p <- ggplot(long_df_dh_co2_emissions, aes(Year, Emissions, col = Source)) +
                 geom_line() + 
                 labs(y = "CO2 Emissions (kt)")
+       
+       ggplotly(p)
        
        
        
@@ -555,19 +629,13 @@ server <- function(input, output, session) {
      
      # Domestic Heating NOx Emissions
      
-     output$dh_nox <- renderPlot({
+     output$dh_nox <- renderPlotly({
        
        req(input_dh_file())
-       
-       dh_data <- input_dh_file()
-       
-       colnames = as.character(dh_data[ , 1])
-       dh_data = data.frame(t(dh_data[ , -1]))
-       colnames(dh_data) = colnames
-       dh_data$Sum <- rowSums(dh_data[ , 2:28], na.rm = TRUE)
-       dh_data$Year <- format(dh_data$Year, 0)
-       
-       df_dh_nox_emissions <- dh_data[, 1:17]
+
+       #dh_data$Sum <- rowSums(dh_data[ , 2:28], na.rm = TRUE)
+
+       df_dh_nox_emissions <- input_dh_file()[, 1:17]
        
        df_dh_nox_emissions$`Biofuel Boiler` <- df_dh_nox_emissions$`Biofuel Boiler` * dh_nox_EF_gasoil_boiler
        df_dh_nox_emissions$`ASHP + Biofuel Boiler (Biofuel)` <- df_dh_nox_emissions$`ASHP + Biofuel Boiler (Biofuel)` * dh_nox_EF_gasoil_boiler
@@ -614,11 +682,11 @@ server <- function(input, output, session) {
        
        long_df_dh_nox_impacts <- melt(df_dh_nox_impacts[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
        
-       ggplot(long_df_dh_nox_impacts, aes(Year, Impacts, group = Source, col = Source)) +
+       p <- ggplot(long_df_dh_nox_impacts, aes(Year, Impacts, col = Source)) +
                 geom_line() + 
                 labs(y = "NOx PWMC Impacts (ng m-3)")
        
-       
+       ggplotly(p)
        
      })
      
@@ -628,19 +696,13 @@ server <- function(input, output, session) {
      
      # Domestic PM2.5 Emissions
      
-     output$dh_pm25 <- renderPlot({
+     output$dh_pm25 <- renderPlotly({
        
        req(input_dh_file())
        
-       dh_data <- input_dh_file()
+       #dh_data$Sum <- rowSums(dh_data[ , 2:28], na.rm = TRUE)
        
-       colnames = as.character(dh_data[ , 1])
-       dh_data = data.frame(t(dh_data[ , -1]))
-       colnames(dh_data) = colnames
-       dh_data$Sum <- rowSums(dh_data[ , 2:28], na.rm = TRUE)
-       dh_data$Year <- format(dh_data$Year, 0)
-       
-       df_dh_pm25_emissions <- dh_data[, 1:17]
+       df_dh_pm25_emissions <- input_dh_file()[, 1:17]
        
        df_dh_pm25_emissions$`Biofuel Boiler` <- df_dh_pm25_emissions$`Biofuel Boiler` * dh_pm25_EF_gasoil_boiler
        df_dh_pm25_emissions$`ASHP + Biofuel Boiler (Biofuel)` <- df_dh_pm25_emissions$`ASHP + Biofuel Boiler (Biofuel)` * dh_pm25_EF_gasoil_boiler
@@ -687,11 +749,11 @@ server <- function(input, output, session) {
        
        long_df_dh_pm25_impacts <- melt(df_dh_pm25_impacts[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
        
-       ggplot(long_df_dh_pm25_impacts, aes(Year, Impacts, group = Source, col = Source)) +
+       p <- ggplot(long_df_dh_pm25_impacts, aes(Year, Impacts, col = Source)) +
                 geom_line() + 
                 labs(y = "PM2.5 PWMC Impacts (ng m-3)")
       
-       
+       ggplotly(p)
        
      })
      
@@ -702,19 +764,13 @@ server <- function(input, output, session) {
      
      # Public and commercial Heating CO2 Emissions
      
-     output$ph_co2 <- renderPlot({
+     output$ph_co2 <- renderPlotly({
        
        req(input_ph_file())
        
-       ph_data <- input_ph_file()
+       #ph_data$Sum <- rowSums(ph_data[ , 2:28], na.rm = TRUE)
        
-       colnames = as.character(ph_data[ , 1])
-       ph_data = data.frame(t(ph_data[ , -1]))
-       colnames(ph_data) = colnames
-       ph_data$Sum <- rowSums(ph_data[ , 2:28], na.rm = TRUE)
-       ph_data$Year <- format(ph_data$Year, 0)
-       
-       df_ph_co2_emissions <- ph_data[, 1:17]
+       df_ph_co2_emissions <- input_ph_file()[, 1:17]
        
        df_ph_co2_emissions$`Biofuel Boiler` <- df_ph_co2_emissions$`Biofuel Boiler` * ph_co2_EF_fueloil_boiler
        df_ph_co2_emissions$`ASHP + Biofuel Boiler (Biofuel)` <- df_ph_co2_emissions$`ASHP + Biofuel Boiler (Biofuel)` * ph_co2_EF_fueloil_boiler
@@ -737,10 +793,11 @@ server <- function(input, output, session) {
        
        long_df_ph_co2_emissions <- melt(df_ph_co2_emissions[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
        
-       ggplot(long_df_ph_co2_emissions, aes(Year, Emissions, group = Source, col = Source)) +
+       p <- ggplot(long_df_ph_co2_emissions, aes(Year, Emissions, col = Source)) +
                 geom_line() + 
                 labs(y = "CO2 Emissions (kt)")
        
+       ggplotly(p)
        
        
      })
@@ -750,19 +807,13 @@ server <- function(input, output, session) {
      
      # Public and commercial Heating NOx Emissions
      
-     output$ph_nox <- renderPlot({
+     output$ph_nox <- renderPlotly({
        
        req(input_ph_file())
        
-       ph_data <- input_ph_file()
-       
-       colnames = as.character(ph_data[ , 1])
-       ph_data = data.frame(t(ph_data[ , -1]))
-       colnames(ph_data) = colnames
-       ph_data$Sum <- rowSums(ph_data[ , 2:28], na.rm = TRUE)
-       ph_data$Year <- format(ph_data$Year, 0)
-       
-       df_ph_nox_emissions <- ph_data[, 1:17]
+       #ph_data$Sum <- rowSums(ph_data[ , 2:28], na.rm = TRUE)
+
+       df_ph_nox_emissions <- input_ph_file()[, 1:17]
        
        df_ph_nox_emissions$`Biofuel Boiler` <- df_ph_nox_emissions$`Biofuel Boiler` * ph_nox_EF_fueloil_boiler
        df_ph_nox_emissions$`ASHP + Biofuel Boiler (Biofuel)` <- df_ph_nox_emissions$`ASHP + Biofuel Boiler (Biofuel)` * ph_nox_EF_fueloil_boiler
@@ -809,11 +860,11 @@ server <- function(input, output, session) {
        
        long_df_ph_nox_impacts <- melt(df_ph_nox_impacts[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
        
-       ggplot(long_df_ph_nox_impacts, aes(Year, Impacts, group = Source, col = Source)) +
+       p <- ggplot(long_df_ph_nox_impacts, aes(Year, Impacts, col = Source)) +
                 geom_line() + 
                 labs(y = "NOx PWMC Impacts (ng m-3)")
        
-       
+       ggplotly(p)
        
      })
      
@@ -823,19 +874,13 @@ server <- function(input, output, session) {
      
      # Public and commercial PM2.5 Emissions
      
-     output$ph_pm25 <- renderPlot({
+     output$ph_pm25 <- renderPlotly({
        
         req(input_ph_file())
        
-       ph_data <- input_ph_file()
+       #ph_data$Sum <- rowSums(ph_data[ , 2:28], na.rm = TRUE)
        
-       colnames = as.character(ph_data[ , 1])
-       ph_data = data.frame(t(ph_data[ , -1]))
-       colnames(ph_data) = colnames
-       ph_data$Sum <- rowSums(ph_data[ , 2:28], na.rm = TRUE)
-       ph_data$Year <- format(ph_data$Year, 0)
-       
-       df_ph_pm25_emissions <- ph_data[, 1:17]
+       df_ph_pm25_emissions <- input_ph_file()[, 1:17]
        
        df_ph_pm25_emissions$`Biofuel Boiler` <- df_ph_pm25_emissions$`Biofuel Boiler` * ph_pm25_EF_fueloil_boiler
        df_ph_pm25_emissions$`ASHP + Biofuel Boiler (Biofuel)` <- df_ph_pm25_emissions$`ASHP + Biofuel Boiler (Biofuel)` * ph_pm25_EF_fueloil_boiler
@@ -882,20 +927,209 @@ server <- function(input, output, session) {
        
        long_df_ph_pm25_impacts <- melt(df_ph_pm25_impacts[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
        
-       ggplot(long_df_ph_pm25_impacts, aes(Year, Impacts, group = Source, col = Source)) +
+       p <- ggplot(long_df_ph_pm25_impacts, aes(Year, Impacts, col = Source)) +
                 geom_line() + 
                 labs(y = "PM2.5 PWMC Impacts (ng m-3)")
        
+       ggplotly(p)
        
        
      })
+      
+    ####################################################################################################################
+      # Iron and Steel Combustion Emissions
+      
+      
+      output$ironsteel_co2 <- renderPlotly({
+        
+        req(input_ind_file())
+        
+        ironsteel_data <- input_ind_file()[,1:6]
+        ironsteel_data$Sum <- rowSums(ironsteel_data[,2:6], na.rm = TRUE)
+        ironsteel_data$Year <- format(ironsteel_data$Year, 0)
+
+
+        ironsteel_co2_emissions <- ironsteel_data[, c(1,3:6)]
+        
+        ironsteel_co2_emissions$`Iron and steel - Natural Gas` <- ironsteel_co2_emissions$`Iron and steel - Natural Gas` * ironsteel_co2_EF_gas
+        ironsteel_co2_emissions$`Iron and steel - Hydrogen` <- ironsteel_co2_emissions$`Iron and steel - Hydrogen` * ironsteel_co2_EF_hydrogen
+        ironsteel_co2_emissions$`Iron and steel - Oil/Petroleum` <- ironsteel_co2_emissions$`Iron and steel - Oil/Petroleum` * ironsteel_co2_EF_fueloil
+        ironsteel_co2_emissions$`Iron and steel - Bioenergy/Other` <- ironsteel_co2_emissions$`Iron and steel - Bioenergy/Other` * ironsteel_co2_EF_biomass
+        ironsteel_co2_emissions$`Total Emissions` <- rowSums(ironsteel_co2_emissions[ , 2:5], na.rm = TRUE)
+        
+        long_ironsteel_co2_emissions <- melt(ironsteel_co2_emissions[ , 1:5], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
+        
+        p <- ggplot(long_ironsteel_co2_emissions, aes(Year, Emissions, col = Source)) +
+                 geom_line() +
+                 labs(y = "CO2 Emissions (kt)")
+        
+        ggplotly(p)
+        
+        
+      })
+      
+    ####################################################################################################################
+      
+     output$ironsteel_nox <- renderPlotly({
+        
+        req(input_ind_file())
+        
+        ironsteel_data <- input_ind_file()[,1:6]
+        ironsteel_data$Sum <- rowSums(ironsteel_data[2:6], na.rm = TRUE)
+        ironsteel_data$Year <- format(ironsteel_data$Year, 0)
+        
+        
+        ironsteel_nox_emissions <- ironsteel_data[, c(1,3:6)]
+        
+        ironsteel_nox_emissions$`Iron and steel - Natural Gas` <- ironsteel_nox_emissions$`Iron and steel - Natural Gas` * ironsteel_nox_EF_gas
+        ironsteel_nox_emissions$`Iron and steel - Hydrogen` <- ironsteel_nox_emissions$`Iron and steel - Hydrogen` * ironsteel_nox_EF_hydrogen
+        ironsteel_nox_emissions$`Iron and steel - Oil/Petroleum` <- ironsteel_nox_emissions$`Iron and steel - Oil/Petroleum` * ironsteel_nox_EF_fueloil
+        ironsteel_nox_emissions$`Iron and steel - Bioenergy/Other` <- ironsteel_nox_emissions$`Iron and steel - Bioenergy/Other` * ironsteel_nox_EF_biomass
+        ironsteel_nox_emissions$`Total Emissions` <- rowSums(ironsteel_nox_emissions[ , 2:5], na.rm = TRUE)
+        
+        
+        
+        ironsteel_nox_impacts <- ironsteel_nox_emissions[, 1:5]
+        
+        ironsteel_nox_impacts$`Iron and steel - Natural Gas` <- ironsteel_nox_impacts$`Iron and steel - Natural Gas` * ironsteel_nox_IF
+        ironsteel_nox_impacts$`Iron and steel - Hydrogen` <- ironsteel_nox_impacts$`Iron and steel - Hydrogen` * ironsteel_nox_IF
+        ironsteel_nox_impacts$`Iron and steel - Oil/Petroleum` <- ironsteel_nox_impacts$`Iron and steel - Oil/Petroleum` * ironsteel_nox_IF
+        ironsteel_nox_impacts$`Iron and steel - Bioenergy/Other` <- ironsteel_nox_impacts$`Iron and steel - Bioenergy/Other` * ironsteel_nox_IF
+        ironsteel_nox_impacts$`Total PWMC Impacts` <- rowSums(ironsteel_nox_impacts[ , 2:5], na.rm = TRUE)
+        
+        
+        long_ironsteel_nox_impacts <- melt(ironsteel_nox_impacts[ , 1:5], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
+        
+        p <- ggplot(long_ironsteel_nox_impacts, aes(Year, Impacts, col = Source)) +
+                 geom_line() +
+                 labs(y = "NOx PWMC Impacts (ng m-3)")
+        
+        ggplotly(p)
+        
+      })
+      
+    ####################################################################################################################
      
-     
-  
+     output$ironsteel_pm25 <- renderPlotly({
+        
+        req(input_ind_file())
+        
+        ironsteel_data <- input_ind_file()[,1:6]
+        ironsteel_data$Sum <- rowSums(ironsteel_data[2:6], na.rm = TRUE)
+        ironsteel_data$Year <- format(ironsteel_data$Year, 0)
+        
+        
+        ironsteel_pm25_emissions <- ironsteel_data[, c(1,3:6)]
+        
+        ironsteel_pm25_emissions$`Iron and steel - Natural Gas` <- ironsteel_pm25_emissions$`Iron and steel - Natural Gas` * ironsteel_pm25_EF_gas
+        ironsteel_pm25_emissions$`Iron and steel - Hydrogen` <- ironsteel_pm25_emissions$`Iron and steel - Hydrogen` * ironsteel_pm25_EF_hydrogen
+        ironsteel_pm25_emissions$`Iron and steel - Oil/Petroleum` <- ironsteel_pm25_emissions$`Iron and steel - Oil/Petroleum` * ironsteel_pm25_EF_fueloil
+        ironsteel_pm25_emissions$`Iron and steel - Bioenergy/Other` <- ironsteel_pm25_emissions$`Iron and steel - Bioenergy/Other` * ironsteel_pm25_EF_biomass
+        ironsteel_pm25_emissions$`Total Emissions` <- rowSums(ironsteel_pm25_emissions[ , 2:5], na.rm = TRUE)
+        
+        
+        
+        ironsteel_pm25_impacts <- ironsteel_pm25_emissions[, 1:5]
+        
+        ironsteel_pm25_impacts$`Iron and steel - Natural Gas` <- ironsteel_pm25_impacts$`Iron and steel - Natural Gas` * ironsteel_pm25_IF
+        ironsteel_pm25_impacts$`Iron and steel - Hydrogen` <- ironsteel_pm25_impacts$`Iron and steel - Hydrogen` * ironsteel_pm25_IF
+        ironsteel_pm25_impacts$`Iron and steel - Oil/Petroleum` <- ironsteel_pm25_impacts$`Iron and steel - Oil/Petroleum` * ironsteel_pm25_IF
+        ironsteel_pm25_impacts$`Iron and steel - Bioenergy/Other` <- ironsteel_pm25_impacts$`Iron and steel - Bioenergy/Other` * ironsteel_pm25_IF
+        ironsteel_pm25_impacts$`Total PWMC Impacts` <- rowSums(ironsteel_pm25_impacts[ , 2:5], na.rm = TRUE)
+        
+        
+        long_ironsteel_pm25_impacts <- melt(ironsteel_pm25_impacts[ , 1:5], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
+        
+        p <- ggplot(long_ironsteel_pm25_impacts, aes(Year, Impacts, col = Source)) +
+                 geom_line() +
+                 labs(y = "PM2.5 PWMC Impacts (ng m-3)")
+        
+        ggplotly(p)
+        
+      })
+       
+    ####################################################################################################################
+       
+       # Hydrogen Production Emissions
+       
+       output$hydrogen_co2 <- renderPlotly({
+         
+         req(input_hyd_file())
+         
+         #hyd_data$Sum <- rowSums(hyd_data[ , 2:7], na.rm = TRUE)
+
+         hyd_co2_emissions <- input_hyd_file()[ , 1:4]
+         hyd_co2_emissions$`Methane Reformation with CCUS (Blue)` <- hyd_co2_emissions$`Methane Reformation with CCUS (Blue)` * hyd_prod_co2_EF_blue
+         hyd_co2_emissions$`Biomass Gasification` <- hyd_co2_emissions$`Biomass Gasification` * hyd_prod_co2_EF_biomass_gasification
+         hyd_co2_emissions$`Methane Reformation with CCUS (Grey)` <- hyd_co2_emissions$`Methane Reformation (Grey)` * hyd_prod_co2_EF_grey
+         hyd_co2_emissions$`Total Emissions` <- rowSums(hyd_co2_emissions[ , 2:4], na.rm = TRUE)
+         
+         long_hyd_co2_emissions <- melt(hyd_co2_emissions[ , 1:4], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
+         
+         p <- ggplot(long_hyd_co2_emissions, aes(Year, Emissions, col = Source)) +
+           geom_line() + 
+           labs(y = "CO2 Emissions (kt)")
+       
+         ggplotly(p)
+         
+       })
+       
+    ####################################################################################################################
+      
+       output$hydrogen_nox <- renderPlotly({
+         
+         req(input_hyd_file())
+         
+         #hyd_data$Sum <- rowSums(hyd_data[ , 2:7], na.rm = TRUE)
+
+         hyd_nox_impacts <- input_hyd_file()[ , 1:4]
+         hyd_nox_impacts$`Methane Reformation with CCUS (Blue)` <- hyd_nox_impacts$`Methane Reformation with CCUS (Blue)` * hyd_prod_nox_EF_blue * hyd_prod_nox_IF_Gas
+         hyd_nox_impacts$`Biomass Gasification` <- hyd_nox_impacts$`Biomass Gasification` * hyd_prod_nox_EF_biomass_gasification * hyd_prod_nox_IF_Gas
+         hyd_nox_impacts$`Methane Reformation with CCUS (Grey)` <- hyd_nox_impacts$`Methane Reformation (Grey)` * hyd_prod_nox_EF_grey * hyd_prod_nox_IF_Gas
+         hyd_nox_impacts$`Total Emissions` <- rowSums(hyd_nox_impacts[ , 2:4], na.rm = TRUE)
+         
+         
+         long_hyd_nox_impacts <- melt(hyd_nox_impacts[ , 1:4], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
+         
+         p <- ggplot(long_hyd_nox_impacts, aes(Year, Impacts, col = Source)) +
+           geom_line() + 
+           labs(y = "NOx PWMC Impacts (kt)")
+         
+         ggplotly(p)
+       
+       })
+       
+    ####################################################################################################################
+      
+       output$hydrogen_pm25 <- renderPlotly({
+         
+         req(input_hyd_file())
+         
+         #hyd_data$Sum <- rowSums(hyd_data[ , 2:7], na.rm = TRUE)
+
+         hyd_pm25_impacts <- input_hyd_file()[ , 1:4]
+         hyd_pm25_impacts$`Methane Reformation with CCUS (Blue)` <- hyd_pm25_impacts$`Methane Reformation with CCUS (Blue)` * hyd_prod_pm25_EF_blue * hyd_prod_pm25_IF_Gas
+         hyd_pm25_impacts$`Biomass Gasification` <- hyd_pm25_impacts$`Biomass Gasification` * hyd_prod_pm25_EF_biomass_gasification * hyd_prod_pm25_IF_Gas
+         hyd_pm25_impacts$`Methane Reformation with CCUS (Grey)` <- hyd_pm25_impacts$`Methane Reformation (Grey)` * hyd_prod_pm25_EF_grey * hyd_prod_pm25_IF_Gas
+         hyd_pm25_impacts$`Total Emissions` <- rowSums(hyd_pm25_impacts[ , 2:4], na.rm = TRUE)
+         
+         
+         long_hyd_pm25_impacts <- melt(hyd_pm25_impacts[ , 1:4], id.vars = "Year", variable.name = "Source", value.name = "Impacts", na.rm = TRUE)
+         
+         p <- ggplot(long_hyd_pm25_impacts, aes(Year, Impacts, col = Source)) +
+           geom_line() + 
+           labs(y = "PM2.5 PWMC Impacts (kt)")
+         
+         ggplotly(p)
+       
+       })
+       
+       
+       
+       
+       
 }
 
 shinyApp(ui = ui, server = server)
  
 ```
-
-
