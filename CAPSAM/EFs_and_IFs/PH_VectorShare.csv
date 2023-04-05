@@ -1,0 +1,28 @@
+﻿Technology (Vector),Vector Share
+Biofuel Boiler,0.3
+ASHP + Biofuel Boiler (Biofuel),0.01
+Biomass Boiler,0.39
+Biomass CHP,0.1
+District Heating (Biomass),0
+District Heating (Biomethane),0.2
+District Heating (Gas),0.2
+Gas Boiler,0.7
+Gas CHP,0.1
+District Heating (Hydrogen),0
+Gas Boiler - H2-NG Blend,0.02
+Gas CHP - H2-NG Blend,0.02
+ASHP + Hydrogen Boiler (Hydrogen),0.16
+Hydrogen Boiler,0.8
+Oil Boiler,1
+Community Heating,0.03
+District Heating (Waste Heat),0.97
+ASHP,0.35
+GSHP,0.15
+ASHP + Biofuel Boiler (Electricity),0.05
+ASHP + Electric Resistive (Electricity),0.05
+ASHP + Hydrogen Boiler (Electricity),0.15
+ASHP + Solar Thermal (Electricity),0.05
+Electric Resistive,0.1
+Electric Storage,0.1
+District Heating (Electricity),0
+ASHP + Solar Thermal (Solar),0
