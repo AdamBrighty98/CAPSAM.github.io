@@ -1,0 +1,13 @@
+name: CAPSAM
+title: CAPSAM
+username:
+account: capsam
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8772919
+bundleId: 7053094
+url: https://capsam.shinyapps.io/CAPSAM/
+when: 1680707327.5282
+lastSyncTime: 1680707327.52821
+asMultiple: FALSE
+asStatic: FALSE
