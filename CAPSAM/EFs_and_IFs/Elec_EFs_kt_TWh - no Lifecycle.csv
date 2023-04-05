@@ -1,0 +1,12 @@
+﻿Production,Fuel ,CO2,NOx,PM2.5
+Coal Plant (incl. Peat),Coal,937,1.729089748,0.016076054
+CCGT,Natural Gas,394,0.213956101,0.002731243
+OCGT,Natural Gas,651,0.213956101,0.002731243
+Hydrogen GT,Hydrogen,0,0.154984433,0
+Oil,Oil,935,4.126107821,0.15575436
+Biomass,"Biomass (Straw, woodwaste)",120,0.59023643,0.048147179
+Biogas Plant,Biogas,120,4.589081254,0.038500274
+Waste incineration,Municipal waste,792,0.513160987,0.077361184
+Natural gas incl. CO2-storage,Gas CCS,51.22,0.213956101,0.001939183
+Coal incl. CO2-storage,Coal CCS,93.7,1.625344363,0.011413999
+Biomass incl. CO2-storage,BECCS,12,0.554822244,0.034184497

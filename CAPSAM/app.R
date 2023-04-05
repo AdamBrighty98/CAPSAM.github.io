@@ -1,10 +1,10 @@
 # Loading in data - all impact factors, emission factors, and assumption CSV files
-elec_gen_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Elec_EFs_kt_TWh.csv")
-dom_heat_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Res_Heat_EFs_kt_TWh.csv")
-pub_heat_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Pub_Heat_EFs_kt_TWh.csv")
-ind_com_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Ind_Com_EFs_kt_TWh.csv")
-hyd_prod_EFs <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/Hydrogen_Production_EFs_kt_TWh.csv")
-impact_factors <- read.csv("C:/Users/ab22/Desktop/CAPSAM_CSVs/UK_to_UK_IFs.csv")
+elec_gen_EFs <- read.csv("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/EFs_and_IFs/Elec_EFs_kt_TWh.csv")
+dom_heat_EFs <- read.csv("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/EFs_and_IFs/Res_Heat_EFs_kt_TWh.csv")
+pub_heat_EFs <- read.csv("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/EFs_and_IFs/Pub_Heat_EFs_kt_TWh.csv")
+ind_com_EFs <- read.csv("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/EFs_and_IFs/Ind_Com_EFs_kt_TWh.csv")
+hyd_prod_EFs <- read.csv("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/EFs_and_IFs/Hydrogen_Production_EFs_kt_TWh.csv")
+impact_factors <- read.csv("C:/Users/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/EFs_and_IFs/UK_to_UK_IFs.csv")
 
 
 
@@ -828,7 +828,7 @@ server <- function(input, output, session) {
     },
     
     content <- function(file) {
-      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM_CSVs/Templates/Elec_Template.csv", file)
+      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/Templates/Elec_Template.csv", file)
     }
   )
   
@@ -840,7 +840,7 @@ server <- function(input, output, session) {
     },
     
     content <- function(file) {
-      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM_CSVs/Templates/DomHeat_Template_FullData.csv", file)
+      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/Templates/DomHeat_Template_FullData.csv", file)
     }
   )
   
@@ -851,7 +851,7 @@ server <- function(input, output, session) {
     },
     
     content <- function(file) {
-      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM_CSVs/Templates/PubHeat_Template_FullData.csv", file)
+      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/Templates/PubHeat_Template_FullData.csv", file)
     }
   )
   
@@ -862,7 +862,7 @@ server <- function(input, output, session) {
     },
     
     content <- function(file) {
-      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM_CSVs/Templates/Industry_Template_FullData.csv", file)
+      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/Templates/Industry_Template_FullData.csv", file)
     }
   )
   
@@ -873,7 +873,7 @@ server <- function(input, output, session) {
     },
     
     content <- function(file) {
-      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM_CSVs/Templates/Hydrogen_Template.csv", file)
+      file.copy("C:/Users/ab22/OneDrive - Imperial College London/Second Year Thesis/CAPSAM.github.io/CAPSAM/Templates/Hydrogen_Template.csv", file)
     }
   )
   

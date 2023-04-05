@@ -1,0 +1,11 @@
+﻿Production,CO2,NOx,PM2.5
+Solid Fuel Fireplace/Stove,90,0.36,1.62
+Solid Fuel Boiler,90,0.5688,0.7236
+Gas Oil Boiler,72,0.2484,0.0054
+Natural Gas Boiler,54,0.1512,0.00072
+Wood Pellet Boiler,22,0.288,0.216
+Wood Stove/Boiler (Advanced),19,0.342,0.3348
+Wood Fireplace,6,0.18,2.952
+Hydrogen Boiler,0,0.1094688,0
+Hydrogen-Natural Gas Boiler,43.2,0.19656,0.00072
+Coal Stove,90,0.54,0.792
