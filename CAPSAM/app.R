@@ -5,9 +5,14 @@ pub_heat_EFs <- read.csv("EFs_and_IFs/Pub_Heat_EFs_kt_TWh.csv")
 ind_com_EFs <- read.csv("EFs_and_IFs/Ind_Com_EFs_kt_TWh.csv")
 hyd_prod_EFs <- read.csv("EFs_and_IFs/Hydrogen_Production_EFs_kt_TWh.csv")
 impact_factors <- read.csv("EFs_and_IFs/UK_to_UK_IFs.csv")
+<<<<<<< HEAD
 dh_vector_share <- read.csv("EFs_and_IFs/DH_VectorShare.csv")
 ph_vector_share <- read.csv("EFs_and_IFs/PH_VectorShare.csv")
 ind_vector_share <- read.csv("EFs_and_IFs/Ind_VectorShare.csv")
+=======
+
+
+>>>>>>> 245ff27aba04bc04dcd05669e262b4cde1930467
 
 # Simplifying names of emission factors - setting them to recognisable names
 

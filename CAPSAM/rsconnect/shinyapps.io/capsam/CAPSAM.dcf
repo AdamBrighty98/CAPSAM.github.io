@@ -5,9 +5,16 @@ account: capsam
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8772919
+<<<<<<< HEAD
 bundleId: 7089975
 url: https://capsam.shinyapps.io/CAPSAM/
 when: 1681483258.1781
 lastSyncTime: 1681483258.17813
+=======
+bundleId: 7053094
+url: https://capsam.shinyapps.io/CAPSAM/
+when: 1680707327.5282
+lastSyncTime: 1680707327.52821
+>>>>>>> 245ff27aba04bc04dcd05669e262b4cde1930467
 asMultiple: FALSE
 asStatic: FALSE
