@@ -5,14 +5,11 @@ pub_heat_EFs <- read.csv("EFs_and_IFs/Pub_Heat_EFs_kt_TWh.csv")
 ind_com_EFs <- read.csv("EFs_and_IFs/Ind_Com_EFs_kt_TWh.csv")
 hyd_prod_EFs <- read.csv("EFs_and_IFs/Hydrogen_Production_EFs_kt_TWh.csv")
 impact_factors <- read.csv("EFs_and_IFs/UK_to_UK_IFs.csv")
-<<<<<<< HEAD
 dh_vector_share <- read.csv("EFs_and_IFs/DH_VectorShare.csv")
 ph_vector_share <- read.csv("EFs_and_IFs/PH_VectorShare.csv")
 ind_vector_share <- read.csv("EFs_and_IFs/Ind_VectorShare.csv")
-=======
+damage_costs <- read.csv("EFs_and_IFs/Damage_Costs.csv")
 
-
->>>>>>> 245ff27aba04bc04dcd05669e262b4cde1930467
 
 # Simplifying names of emission factors - setting them to recognisable names
 
@@ -33,7 +30,6 @@ elec_co2_EF_Solar <- elec_gen_EFs[15,3]
 elec_co2_EF_Hydro <- elec_gen_EFs[16,3]
 elec_co2_EF_Marine <- elec_gen_EFs[17,3]
 elec_co2_EF_OtherRenewables <- elec_gen_EFs[18,3]
-
 
 
 # NOx emission factors
@@ -667,9 +663,11 @@ other_vector_share_electricity <- ind_vector_share[9,7]
 other_vector_share_gasccs <- ind_vector_share[9,9]
 other_vector_share_beccs <- ind_vector_share[9,10]
 
+################################################################################
 
-
-
+# PWMC Damage Costs per person
+damage_costs_nox <- damage_costs[1,2]
+damage_costs_pm25 <- damage_costs[2,2]
 
 ###############################################################################################################################################
 
@@ -685,7 +683,9 @@ gwpPotentials <- c("GWP20", "GWP100")
 library(shiny)
 library(shinydashboard)
 library(shinydashboardPlus)
+library(dashboardthemes)
 library(ggplot2)
+library(ggtext)
 library(plotly)
 library(tidyverse)
 library(dplyr)
@@ -694,7 +694,8 @@ library(readxl)
 library(writexl)
 library(openxlsx)
 library(cli)
-
+library(htmltools)
+library(shinyalert)
 
 # Y-Axis Labels
 y_label_co2e <- "Lifecycle CO2e Emissions (kt)"
@@ -710,7 +711,7 @@ y_label_pm25_perTWh <- "PM2.5 Impact per TWh (ng m-3 TWh-1)"
 
 # UI Side
 
-ui <- dashboardPage(skin = "purple",
+ui <- dashboardPage(
                     
                     dashboardHeader(title = "CAPSAM"),
                     
@@ -727,14 +728,25 @@ ui <- dashboardPage(skin = "purple",
                     
                     dashboardBody(
                       
+                      ### Changing theme
+                      shinyDashboardThemes(
+                       
+                        theme = "purple_gradient"
+                        
+                      ),
+                      
                       tabItems(
                         
                         
                         tabItem(tabName = "upload",
-                                h1("Data Upload & Results"),
+                                h1("Data Upload & Results", style = "color:white"),
                                 
-                                
-                                tags$style(".translation {
+
+#################################################################################  
+
+# CSS inputs
+
+                                tags$style(".translationdown {
     
     transform: translateY(5px);
     
@@ -749,15 +761,26 @@ ui <- dashboardPage(skin = "purple",
     }"
                                            
                                 ),
+
+# Move 5 Pixels right to get all results in tabBox
+tags$style(".translationright {
+    
+    transform: translateX(15px);
+    
+    }"
+           
+),
                                 
-                                
+################################################################################ 
+
                                 fixedRow(
                                   
                                   # Information and Upload Box
                                   
                                   tabBox(title = "Parameters", width = 5,
                                          
-                                         tabPanel("Welcome", h2("Welcome to CAPSAM"), h4("This website is designed to read energy system data (in TWh) for a variety of sectors. From here, CAPSAM will output GHG emissions and air quality impacts."), h4("To use CAPSAM, upload your energy data into the required slots on the 'Import Scenarios CSV' page (templates are also provided). CAPSAM also allows for a range of different data forms for building heating and industrial combustion. Select the drop down on the 'Scenario Questions' page to determine your data type - CAPSAM can then make some basic assumptions to produce the necessary data. Emissions and impacts can also be changed to be per TWh, and using both 20-year and 100-year global warming potentials"), h4("Air pollution and GHG results can be downloaded as a .csv for all sectors in one file, or individually, by clicking to corresponding download button in the 'Results Download' box."), h4("Please feel free to click one of the default runs below to become more accustomed to how CAPSAM works. Enjoy!")),
+                                         tabPanel("Welcome", 
+                                                  actionButton("welcome", "Quick Information", icon = icon("info"), style = 'font-size:250%; color:white')),
                                          
                                          tabPanel("Scenario Questions",
                                                   # Deciding on basic levels of information for Building Heating
@@ -769,11 +792,13 @@ ui <- dashboardPage(skin = "purple",
                                                   # Selecting GWP potentials for lifecycle assessments
                                                   radioButtons("gwpPotentials", "Please select either 20-year or 100-year global warming potentials (GWP)", choices = gwpPotentials, width = 600),
                                                   
-                                                  # Selecting whether emissons/impacts should be illustrated per unit energy or absolute
+                                                  # Selecting whether emissions/impacts should be illustrated per unit energy or absolute
                                                   radioButtons("absolute_or_perUnit", "Specify whether emissions/impacts should be stated as absolute or per TWh energy generated or used", choices = per_unit_or_absolute_choice, width = 600)
                                                   
                                          )),
-                                  
+  
+
+##########################################################################################################################################################################################
                                   
                                   # Inputs for CSVs, with templates for download underneath
                                   
@@ -784,59 +809,69 @@ ui <- dashboardPage(skin = "purple",
                                          # Inputting elec gen CSV input
                                          tabBox(title = "Electricity Generation", 
                                                 tabPanel("Upload", fileInput("elec_file", "Select your electricity generation file: ")), 
-                                                tabPanel("Template Download", downloadButton("elec_template_download", "Electricity Generation Template", style = "color: #fff; background-color: green; border-color: black"))),
+                                                tabPanel("Template Download", downloadButton("elec_template_download", "Electricity Generation Template", style = "color: #fff; background-color: green; border-color: black", class = "translationup"),
+                                                                              downloadButton("elec_template_run", "Example Scenario Run", style = "color: #fff; background-color: blue; border-color: black"))),
                                          
                                          # Inputting Hydrogen production csv file
                                          tabBox(title = "Hydrogen Production", 
                                                 tabPanel("Upload", fileInput("hyd_file", "Select your hydrogen production file: ")),
-                                                tabPanel("Template Download", downloadButton("hyd_template_download", "Hydrogen Production Template", style = "color: #fff; background-color: green; border-color: black"))),
+                                                tabPanel("Template Download", downloadButton("hyd_template_download", "Hydrogen Production Template", style = "color: #fff; background-color: green; border-color: black", class = "translationup"),
+                                                                              downloadButton("hyd_template_run", "Example Scenario Run", style = "color: #fff; background-color: blue; border-color: black"))),
                                          
                                          # Inputting domestic heat csv input
-                                         tabBox(title = "Domestic Heating", 
+                                         tabBox(title = "Domestic Combustion", 
                                                 tabPanel("Upload", fileInput("dh_file", "Select your domestic combustion file: ")),
                                                 tabPanel("Template Download", 
                                                          downloadButton("dh_template_download_pure", "Technology-specific Domestic Heating Template", style = "color: #fff; background-color: green; border-color: black", class = "translationup"),
                                                          downloadButton("dh_template_download_vector", "Energy Vector Domestic Heating Template", style = "color: #fff; background-color: green; border-color: black"),
-                                                         downloadButton("dh_template_download_houses", "Number of Houses Domestic Heating Template", style = "color: #fff; background-color: green; border-color: black", class = "translation"))),
+                                                         downloadButton("dh_template_run", "Example Scenario Run", style = "color: #fff; background-color: blue; border-color: black", class = "translationdown")
+                                                         )),
                                          
                                          # Inputting public and commercial heat csv input
-                                         tabBox(title = "Public & Commericial Heating", 
+                                         tabBox(title = "Public & Commercial Combustion", 
                                                 tabPanel("Upload", fileInput("ph_file", "Select your commercial combustion file: ")),
                                                 tabPanel("Template Download",
                                                          downloadButton("ph_template_download_pure", "Technology-specific Public Heating Template", style = "color: #fff; background-color: green; border-color: black", class = "translationup"),
                                                          downloadButton("ph_template_download_vector", "Energy Vector Public Heating Template", style = "color: #fff; background-color: green; border-color: black"),
-                                                         downloadButton("ph_template_download_houses", "Number of Houses Public Heating Template", style = "color: #fff; background-color: green; border-color: black", class = "translation"))),
+                                                         downloadButton("ph_template_run", "Example Scenario Run", style = "color: #fff; background-color: blue; border-color: black", class = "translationdown")
+                                                         )),
                                          
                                          # Inputting industrial combustion csv file
                                          tabBox(title = "Industrial Combustion", 
                                                 tabPanel("Upload", fileInput("ind_file", "Select your industrial combustion file: ")),
                                                 tabPanel("Template Download",
                                                          downloadButton("ind_template_download_pure", "Sector-specific industrial combustion Template", style = "color: #fff; background-color: green; border-color: black", class = "translationup"),
-                                                         downloadButton("ind_template_download_vector", "Energy Vector industrial combustion Template", style = "color: #fff; background-color: green; border-color: black")))
+                                                         downloadButton("ind_template_download_vector", "Energy Vector industrial combustion Template", style = "color: #fff; background-color: green; border-color: black"),
+                                                         downloadButton("ind_template_run", "Example Scenario Run", style = "color: #fff; background-color: blue; border-color: black", class = "translationdown")))
                                          
                                          
                                          
                                   )),
+
+#########################################################################################################################################################################################
                                 
                                 # Results Box
+
+                               fixedRow(valueBoxOutput("Elec_PWMC_Costs_nox", width = 3), valueBoxOutput("Hydrogen_PWMC_Costs_nox", width = 3), valueBoxOutput("Heating_PWMC_Costs_nox", width = 3), valueBoxOutput("Industry_PWMC_Costs_nox", width = 3)),
+                               fixedRow(valueBoxOutput("Elec_PWMC_Costs_pm25", width = 3), valueBoxOutput("Hydrogen_PWMC_Costs_pm25", width = 3), valueBoxOutput("Heating_PWMC_Costs_pm25", width = 3), valueBoxOutput("Industry_PWMC_Costs_pm25", width = 3)),
                                 
                                 tabBox(id = "resultsTab", title = "Results", width = 12,
                                        
-                                       tabPanel("Electricity Generation", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("elec_co2"), plotlyOutput("elec_nox"), plotlyOutput("elec_pm25")))),
-                                       tabPanel("Hydrogen Production", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("hydrogen_co2"), plotlyOutput("hydrogen_nox"), plotlyOutput("hydrogen_pm25")))),
-                                       tabPanel("Domestic Heating", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("dh_co2"), plotlyOutput("dh_nox"), plotlyOutput("dh_pm25")))),
-                                       tabPanel("Public and Commercial Heating", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("ph_co2"), plotlyOutput("ph_nox"), plotlyOutput("ph_pm25")))),
-                                       tabPanel("Iron & Steel", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("ironsteel_co2"), plotlyOutput("ironsteel_nox"), plotlyOutput("ironsteel_pm25")))),
-                                       tabPanel("Non-Ferrous Metals", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("nfm_co2"), plotlyOutput("nfm_nox"), plotlyOutput("nfm_pm25")))),
-                                       tabPanel("Chemicals", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("chem_co2"), plotlyOutput("chem_nox"), plotlyOutput("chem_pm25")))),
-                                       tabPanel("Paper and Pulp", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("pap_co2"), plotlyOutput("pap_nox"), plotlyOutput("pap_pm25")))),
-                                       tabPanel("Food and Beverages", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("food_co2"), plotlyOutput("food_nox"), plotlyOutput("food_pm25")))),
-                                       tabPanel("Minerals", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("min_co2"), plotlyOutput("min_nox"), plotlyOutput("min_pm25")))),
-                                       tabPanel("Textiles and Leather", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("text_co2"), plotlyOutput("text_nox"), plotlyOutput("text_pm25")))),
-                                       tabPanel("Construction/NRMM", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("con_co2"), plotlyOutput("con_nox"), plotlyOutput("con_pm25")))),
+                                       tabPanel("Electricity Generation", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("elec_co2"), plotlyOutput("elec_nox"), plotlyOutput("elec_pm25"), class = "translationright"))),
+                                       tabPanel("Hydrogen Production", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("hydrogen_co2"), plotlyOutput("hydrogen_nox"), plotlyOutput("hydrogen_pm25"), class = "translationright"))),
+                                       tabPanel("Domestic Heating", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("dh_co2"), plotlyOutput("dh_nox"), plotlyOutput("dh_pm25"), class = "translationright"))),
+                                       tabPanel("Public and Commercial Heating", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("ph_co2"), plotlyOutput("ph_nox"), plotlyOutput("ph_pm25"), class = "translationright"))),
+                                       tabPanel("Iron & Steel", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("ironsteel_co2"), plotlyOutput("ironsteel_nox"), plotlyOutput("ironsteel_pm25"), class = "translationright"))),
+                                       tabPanel("Non-Ferrous Metals", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("nfm_co2"), plotlyOutput("nfm_nox"), plotlyOutput("nfm_pm25"), class = "translationright"))),
+                                       tabPanel("Chemicals", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("chem_co2"), plotlyOutput("chem_nox"), plotlyOutput("chem_pm25"), class = "translationright"))),
+                                       tabPanel("Paper and Pulp", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("pap_co2"), plotlyOutput("pap_nox"), plotlyOutput("pap_pm25"), class = "translationright"))),
+                                       tabPanel("Food and Beverages", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("food_co2"), plotlyOutput("food_nox"), plotlyOutput("food_pm25"), class = "translationright"))),
+                                       tabPanel("Minerals", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("min_co2"), plotlyOutput("min_nox"), plotlyOutput("min_pm25"), class = "translationright"))),
+                                       tabPanel("Textiles and Leather", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("text_co2"), plotlyOutput("text_nox"), plotlyOutput("text_pm25"), class = "translationright"))),
+                                       tabPanel("Construction/NRMM", fluidRow(splitLayout(cellWidths = c("32.5%", "32.5%", "32.5%"), plotlyOutput("con_co2"), plotlyOutput("con_nox"), plotlyOutput("con_pm25"), class = "translationright"))),
                                        
                                        # Other Industries - 1A2gviii - Mech Eng, Elec Eng, Vehicles, Other Ind
-                                       tabPanel("Other Industries", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("other_co2"), plotlyOutput("other_nox"), plotlyOutput("other_pm25")))),
+                                       tabPanel("Other Industries", fluidRow(splitLayout(cellWidths = c("33%", "33%", "33%"), plotlyOutput("other_co2"), plotlyOutput("other_nox"), plotlyOutput("other_pm25"), class = "translationright"))),
                                        
                                 ),
                                 
@@ -860,15 +895,66 @@ ui <- dashboardPage(skin = "purple",
                         # Second Tab
                         
                         tabItem(tabName = "about",
-                                h1("About CAPSAM"),
+                                h1("About CAPSAM", style = "color:white"),
                                 
-                                box(title = "Schematics and Methodology"),
+                              fluidRow(tabBox(title = "Schematics and Methodology", width = 12,
+                                       
+                              tabPanel("Overview and Flow Diagram",
+                                h3("CAPSAM was designed to sit at the interface between energy system and air quality/chemical transport modelling. Using this tool, a quick assessment of the GHG emissions and air quality impacts of a given energy scenario can be completed"),
+                                h3("The air quality impacts are derived through applying a set of emission factors (kt/TWh) (more detail in each tab), followed by applying sector-specific impact factors (ng m-3 kt-1) to each emissions source. These are derived from the UK Integrated Assessment Model and take into account the proximity of an emissions source to a given population. CCS capture effects are taken from the European Envrionment Agency (2011)."),
+                                h3("This schematic shows the level of detail you can CURRENTLY get from the CAPSAM tool - cost aspects to come soon!"),
                                 
-                        )
+                                imageOutput("schematic_img")
+                                
+                                ),
+                              tabPanel("Electricity Generation",
+                                       h3("Air pollutant emission factors (EF) for electricity generation were derived through a combination of the National Atmospheric Emissions Inventory data, and the Digest of UK Energy Statistics 'electricity supplied' outputs."),
+                                       h3("These EFs are to be applied to the amount of electricity supplied to the grid for each technology, as opposed to the fuel used to produce the electricity (which requires assumptions about auto-consumption and generation efficiency)."),
+                                       h3("The GHG EFs are lifecycle EFs produced by the UNECE, to account for generation as well as construction, maintenance and decommissioning etc. BECCS and biomass are set to 0, as there was no data for these sources."),
+                                       h3("A designated source footprint is included for gas-fired power stations within UKIAM, this is also used for hydrogen-fired power and gas CCS. For other sources, an aggregated footprint is used - including oil, biomass/BECCS, coal, waste and other thermal sources."),
+                           
+                              ),
+                              tabPanel("Hydrogen Production",
+                                       h3("Air pollutant emission factors (EF) for hydrogen production were taken from Sun et al. (2019), Cho et al. (2022), Van Huynh and Kong (2013), and Hamilton et al. (2014)."),
+                                       h3("The UKIAM framework does not have source footprints for hydrogen production facilities, given their nascence. For impact factors here, we use the refinery sources within the model, which are close to ports across the UK. This is where we expect hydrogen production facilities to be situated."),
+                                       h3("The GHG EFs for blue (and grey) are lifecycle EFs taken from Howarth and Jacobson (2021), to account for upstream and fugitive CH4 emissions. Both 100-year and 20-year Global Warming Potentials are available. For biomass gasification and green hydrogen production, not GHG lifecycle emission factors are available."),
+                                       
+                              ),
+                              tabPanel("Building Heating",
+                                       h3("Tier 2 Air pollutant emission factors (EF) for building heating were taken from the European Envrionment Agency emissions inventory guidebook (2019) for both domestic and public heating. NOx EFs for hydrogen boilers were taken from Gersen, Van Essen, and Teerling (2020), whilst H2-Natural Gas Blends were taken from a combination of the NAEI and Wright and Lewis (2022)."),
+                                       h3("Impact factors are available for the domestic combustion of wood, oil, coal, and gas. The impact factor for gas is also used for other domestic heating systems in urban areas (e.g., hydrogen boilers). One aggregated impact factor is applied for public sector combustion sources, this is also used for district heating in both domestic and public settings."),
+                                       h3("The GHG EFs are taken from the NAEI, excluding wood burning. These are taken from Cassano et al. (2019)."),
+                                       h3("Flexibility: If technology-specific activity data is not available but energy vector data is, CAPSAM can apply a fixed 'energy vector share' to the input file allowing for a basic interpretation of impacts from each heating technology")
+                                       
+                              ),
+                              tabPanel("Industrial Combustion",
+                                       h3("Air pollutant emission factors (EF) were taken from the European Envrionment Agency emissions inventory guidebook (2019). Tier 1 EFs have had to be used, as these are given as per unit energy EFs instead of per tonne product, for example."),
+                                       h3("Impact Factors for some specific industrial use cases have been applied. These include: Iron and Steel, Cement, Chemicals. Other industries are aggregated under 'Other Industrial Combustion'."),
+                                       h3("The GHG EFs are taken from the NAEI. Biomass EFs are not included and are currently set to 0."),
+                                       h3("Flexibility: If process-specific activity data is not available but energy vector data is, CAPSAM can apply a fixed 'energy vector share', taken from the the Digest of UK Energy Statistics for 2020, to the input file allowing for a basic interpretation of impacts from each energy vector within each industrial sector")
+                                      
+                              ),
+                              tabPanel("Damage Costs",
+                                       h3("CAPSAM uses Defra damage costs that are calculated per unit concentration (£ per 1ug change per person), as opposed to per tonne of emission, leading to more accurate damage cost information for each scenario input."),
+                                       h3("Using these damage costs, CAPSAM calculates the savings (per person) for NOx and PM2.5 impacts. This is done by applying the damage costs to the difference between the intial- and end-year PWMC for each sector."),
+                                       h3("The values indicate the change in annual health damage costs per person from the initial year to the final year of the pathway. Damage costs are not integrated over the time period."),
+                                       h3("Positive values indicate SAVINGS per person as a result of reduced AQ impacts within the sector. Negative values indicate a LOSS per person as a result of increased AQ impacts within the sector."),
+                                   
+                              ),
+                              
+                                    
+                                    
+                                
+                        ))
                         
                         
                         
-                      )))
+                      
+  
+                        
+  )
+  
+  )))
 
 
 
@@ -891,6 +977,19 @@ ui <- dashboardPage(skin = "purple",
 # Server-side logic
 
 server <- function(input, output, session) {
+  
+  
+  # Rendering in images
+  
+  # Schematic to explain CAPSAM
+  output$schematic_img <- renderImage({
+    
+    list(src = "www/CAPSAM_Flow_Diagram_no_costs.png",
+         width = "100%")
+    
+  }, deleteFile = FALSE)
+  
+ ###############################################################################
   
   # Reading and transposing input csv files
   
@@ -1065,7 +1164,7 @@ server <- function(input, output, session) {
     
     # Data sum for energy vector data only - easy to keep this way, can always change later but does not save too much code
     
-    else if (input$dataLevelsHeat =="Energy Vector Demand (e.g., hydrogen demand for building heating)") 
+    else if (input$dataLevelsHeat == "Energy Vector Demand (e.g., hydrogen demand for building heating)") 
     
     {
       
@@ -1598,6 +1697,7 @@ server <- function(input, output, session) {
   })
   
   ###########################################################################################################################################
+  ###########################################################################################################################################
   
   # CSV Template Downloads
   
@@ -1609,6 +1709,17 @@ server <- function(input, output, session) {
     
     content <- function(file) {
       file.copy("Templates/Elec_Template.csv", file)
+    }
+  )
+  
+  output$elec_template_run <- downloadHandler(
+    
+    filename <- function(){
+      "Elec_Example_Run.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/Consumer_Transformation/CT_Elec_Run.csv", file)
     }
   )
   
@@ -1624,6 +1735,29 @@ server <- function(input, output, session) {
     }
   )
   
+  output$dh_template_download_vector <- downloadHandler(
+    
+    filename <- function(){
+      "DomHeat_Template_Vector_Only.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/DomHeat_Template_Vector_Only.csv", file)
+    }
+    
+  )
+  
+  output$dh_template_run <- downloadHandler(
+    
+    filename <- function(){
+      "DomHeat_Example_Run.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/Consumer_Transformation/CT_DomHeat_Run_FullData.csv", file)
+    }
+  )
+  
   output$ph_template_download_pure <- downloadHandler(
     
     filename <- function(){
@@ -1632,6 +1766,29 @@ server <- function(input, output, session) {
     
     content <- function(file) {
       file.copy("Templates/PubHeat_Template_FullData.csv", file)
+    }
+  )
+  
+  output$ph_template_download_vector <- downloadHandler(
+    
+    filename <- function(){
+      "PubHeat_Template_Vector_Only.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/PubHeat_Template_Vector_Only.csv", file)
+    }
+    
+  )
+  
+  output$ph_template_run <- downloadHandler(
+    
+    filename <- function(){
+      "PubHeat_Example_Run.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/Consumer_Transformation/CT_PubHeat_Run_FullData.csv", file)
     }
   )
   
@@ -1646,6 +1803,28 @@ server <- function(input, output, session) {
     }
   )
   
+  output$ind_template_download_vector <- downloadHandler(
+    
+    filename <- function(){
+      "Industry_Template_Vector_Only.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/Industry_Template_Vector_Only.csv", file)
+    }
+  )
+  
+  output$ind_template_run <- downloadHandler(
+    
+    filename <- function(){
+      "Industry_Example_Run.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/Consumer_Transformation/CT_Ind_Run_FullData.csv", file)
+    }
+  )
+  
   output$hyd_template_download <- downloadHandler(
     
     filename <- function(){
@@ -1654,6 +1833,17 @@ server <- function(input, output, session) {
     
     content <- function(file) {
       file.copy("Hydrogen_Template.csv", file)
+    }
+  )
+  
+  output$hyd_template_run <- downloadHandler(
+    
+    filename <- function(){
+      "Hyd_Example_Run.csv"
+    },
+    
+    content <- function(file) {
+      file.copy("Templates/Consumer_Transformation/CT_Hyd_Run.csv", file)
     }
   )
   
@@ -2000,6 +2190,15 @@ server <- function(input, output, session) {
   
   
   
+  
+  
+  observeEvent(input$welcome, {
+    
+    shinyalert("Welcome to CAPSAM!", "This website is designed to read energy system data (in TWh) for a variety of sectors. From here, CAPSAM will output GHG emissions, air quality impacts, and damage cost data.\n\nTo use CAPSAM, upload your energy data into the required slots on the 'Import Scenarios CSV' page (empty and completed templates are also provided).\n\nCAPSAM also allows for a range of different data forms for building heating and industrial combustion. Select the drop down on the 'Scenario Questions' page to determine your data type - CAPSAM can then make some basic assumptions to produce the necessary data.\n\nEmissions and impacts can also be changed to be 'per TWh', and using both 20-year and 100-year global warming potentials.\n\nAir pollution and GHG results can be downloaded as a .csv for all sectors in one file, or individually, by clicking to corresponding download button in the 'Results Download' box.\n\nMore information is provided on the 'About CAPSAM' page.", type = "info", size = "m")
+    
+    })
+  
+  
   ##########################################################################################################################################  -> Beginning of calculations
   
   
@@ -2066,12 +2265,13 @@ server <- function(input, output, session) {
     
     req(df_elec_co2_emissions())
     
-    long_df_elec_co2_emissions <- melt(df_elec_co2_emissions()[, 1:16], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
+    long_df_elec_co2_emissions <- melt(df_elec_co2_emissions()[, 1:17], id.vars = "Year", variable.name = "Source", value.name = "Emissions", na.rm = TRUE)
       
       
     p <- ggplot(long_df_elec_co2_emissions,
                   aes(Year, Emissions, col = Source)) +
         geom_line() + 
+      
       {
         if (input$absolute_or_perUnit == "Absolute emissions/impacts")
         {
@@ -2168,7 +2368,7 @@ server <- function(input, output, session) {
     
     req(df_elec_nox_impacts())
     
-      long_df_elec_nox_impacts <- melt(df_elec_nox_impacts()[, 1:9], id.vars = "Year", variable.name = "Source", value.name = "PWMC", na.rm = TRUE)
+      long_df_elec_nox_impacts <- melt(df_elec_nox_impacts()[, 1:10], id.vars = "Year", variable.name = "Source", value.name = "PWMC", na.rm = TRUE)
       
       
       p <- ggplot(long_df_elec_nox_impacts, aes(Year, PWMC, col = Source)) +
@@ -2271,7 +2471,7 @@ server <- function(input, output, session) {
     req(df_elec_pm25_impacts())
     
     
-      long_df_elec_pm25_impacts <- melt(df_elec_pm25_impacts()[, 1:9], id.vars = "Year", variable.name = "Source", value.name = "PWMC", na.rm = TRUE)
+      long_df_elec_pm25_impacts <- melt(df_elec_pm25_impacts()[, 1:10], id.vars = "Year", variable.name = "Source", value.name = "PWMC", na.rm = TRUE)
       
       
       p <- ggplot(long_df_elec_pm25_impacts, aes(Year, PWMC, col = Source)) +
@@ -3618,7 +3818,7 @@ server <- function(input, output, session) {
       nfm_nox_impacts$`Non-ferrous metals - Bioenergy/Other` <- (nfm_nox_impacts$`Non-ferrous metals - Bioenergy/Other` * nfm_nox_IF)/nfm_data_sum()
       nfm_nox_impacts$`Non-ferrous metals - Gas CCS` <- (nfm_nox_impacts$`Non-ferrous metals - Gas CCS` * nfm_nox_IF)/nfm_data_sum()
       nfm_nox_impacts$`Non-ferrous metals - BECCS` <- (nfm_nox_impacts$`Non-ferrous metals - BECCS` * nfm_nox_IF)/nfm_data_sum()
-      nfm_nox_impacts$`Total Impact` <- rowSums(nfm_nox_impacts[ , 2:7], na.rm = TRUE)
+      nfm_nox_impacts$`Total Impact per TWh` <- rowSums(nfm_nox_impacts[ , 2:7], na.rm = TRUE)
       
       return(nfm_nox_impacts)
     
@@ -4126,7 +4326,7 @@ server <- function(input, output, session) {
       pap_nox_impacts$`Paper and Pulp - Bioenergy/Other` <- (pap_nox_impacts$`Paper and Pulp - Bioenergy/Other` * pap_nox_IF)/pap_data_sum()
       pap_nox_impacts$`Paper and Pulp - Gas CCS` <- (pap_nox_impacts$`Paper and Pulp - Gas CCS` * pap_nox_IF)/pap_data_sum()
       pap_nox_impacts$`Paper and Pulp - BECCS` <- (pap_nox_impacts$`Paper and Pulp - BECCS` * pap_nox_IF)/pap_data_sum()
-      pap_nox_impacts$`Total Impact` <- rowSums(pap_nox_impacts[ , 2:7], na.rm = TRUE)
+      pap_nox_impacts$`Total Impact per TWh` <- rowSums(pap_nox_impacts[ , 2:7], na.rm = TRUE)
       
       return(pap_nox_impacts)
       
@@ -4379,7 +4579,7 @@ server <- function(input, output, session) {
       food_nox_impacts$`Food and Beverages - Bioenergy/Other` <- (food_nox_impacts$`Food and Beverages - Bioenergy/Other` * food_nox_IF)/food_data_sum()
       food_nox_impacts$`Food and Beverages - Gas CCS` <- (food_nox_impacts$`Food and Beverages - Gas CCS` * food_nox_IF)/food_data_sum()
       food_nox_impacts$`Food and Beverages - BECCS` <- (food_nox_impacts$`Food and Beverages - BECCS` * food_nox_IF)/food_data_sum()
-      food_nox_impacts$`Total Impact` <- rowSums(food_nox_impacts[ , 2:7], na.rm = TRUE)
+      food_nox_impacts$`Total Impact per TWh` <- rowSums(food_nox_impacts[ , 2:7], na.rm = TRUE)
       
       return(food_nox_impacts)
     
@@ -4632,7 +4832,7 @@ server <- function(input, output, session) {
       min_nox_impacts$`Mineral Products - Bioenergy/Other` <- (min_nox_impacts$`Mineral Products - Bioenergy/Other` * min_nox_IF)/food_data_sum()
       min_nox_impacts$`Mineral Products - Gas CCS` <- (min_nox_impacts$`Mineral Products - Gas CCS` * min_nox_IF)/food_data_sum()
       min_nox_impacts$`Mineral Products - BECCS` <- (min_nox_impacts$`Mineral Products - BECCS` * min_nox_IF)/food_data_sum()
-      min_nox_impacts$`Total Impact` <- rowSums(min_nox_impacts[ , 2:7], na.rm = TRUE)
+      min_nox_impacts$`Total Impact per TWh` <- rowSums(min_nox_impacts[ , 2:7], na.rm = TRUE)
       
       return(min_nox_impacts)
       
@@ -4885,7 +5085,7 @@ server <- function(input, output, session) {
       text_nox_impacts$`Textiles and Leather - Bioenergy/Other` <- (text_nox_impacts$`Textiles and Leather - Bioenergy/Other` * text_nox_IF)/food_data_sum()
       text_nox_impacts$`Textiles and Leather - Gas CCS` <- (text_nox_impacts$`Textiles and Leather - Gas CCS` * text_nox_IF)/food_data_sum()
       text_nox_impacts$`Textiles and Leather - BECCS` <- (text_nox_impacts$`Textiles and Leather - BECCS` * text_nox_IF)/food_data_sum()
-      text_nox_impacts$`Total Impact` <- rowSums(text_nox_impacts[ , 2:7], na.rm = TRUE)
+      text_nox_impacts$`Total Impact per TWh` <- rowSums(text_nox_impacts[ , 2:7], na.rm = TRUE)
       
       return(text_nox_impacts)
       
@@ -5138,7 +5338,7 @@ server <- function(input, output, session) {
       con_nox_impacts$`Construction - Bioenergy/Other` <- (con_nox_impacts$`Construction - Bioenergy/Other` * con_nox_IF)/food_data_sum()
       con_nox_impacts$`Construction - Gas CCS` <- (con_nox_impacts$`Construction - Gas CCS` * con_nox_IF)/food_data_sum()
       con_nox_impacts$`Construction - BECCS` <- (con_nox_impacts$`Construction - BECCS` * con_nox_IF)/food_data_sum()
-      con_nox_impacts$`Total Impact` <- rowSums(con_nox_impacts[ , 2:7], na.rm = TRUE)
+      con_nox_impacts$`Total Impact per TWh` <- rowSums(con_nox_impacts[ , 2:7], na.rm = TRUE)
       
       return(con_nox_impacts)
       
@@ -5391,7 +5591,7 @@ server <- function(input, output, session) {
       other_nox_impacts$`Other Industries - Bioenergy/Other` <- (other_nox_impacts$`Other Industries - Bioenergy/Other` * other_nox_IF)/food_data_sum()
       other_nox_impacts$`Other Industries - Gas CCS` <- (other_nox_impacts$`Other Industries - Gas CCS` * other_nox_IF)/food_data_sum()
       other_nox_impacts$`Other Industries - BECCS` <- (other_nox_impacts$`Other Industries - BECCS` * other_nox_IF)/food_data_sum()
-      other_nox_impacts$`Total Impact` <- rowSums(other_nox_impacts[ , 2:7], na.rm = TRUE)
+      other_nox_impacts$`Total Impact per TWh` <- rowSums(other_nox_impacts[ , 2:7], na.rm = TRUE)
       
       return(other_nox_impacts)
       
@@ -5514,8 +5714,296 @@ server <- function(input, output, session) {
     
   })
   
+###################################################################################################
+  
+###################################################################################################
+  
+  # Damage Costs - using /-1000 to get units in ng m-3, but also to flip units so savings pp are +ve and losses pp are -ve
+  
+  # Electricity Generation NOx Impacts - damage costs per change in PWMC per person
+  
+  output$Elec_PWMC_Costs_nox <- renderValueBox({
+    
+    req(df_elec_nox_impacts())
+    
+    if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+      
+     elec_pwmc_value_nox <- valueBox(
+       
+       round((((last(df_elec_nox_impacts()$`Total Impact`)-first(df_elec_nox_impacts()$`Total Impact`))) * (damage_costs_nox/-1000)), 4), 
+               "Electricity NOx Savings (£ per person)", icon = icon("bolt"), color = "purple")
+     
+     return(elec_pwmc_value_nox)
+      
+      
+    }
+    
+    else {
+      
+      elec_pwmc_value_nox <- valueBox(
+        
+        round((((last(df_elec_nox_impacts()$`Total Impact`)-first(df_elec_nox_impacts()$`Total Impact`))) * (damage_costs_nox/-1000)), 4), 
+        "Electricity NOx Savings (£ per person per TWh)", icon = icon("bolt"), color = "purple")
+      
+      return(elec_pwmc_value_nox)
+      
+    }
+    
+    
+  })
+  
+
+################################################################################
+# Hydrogen Generation NOx Impacts - damage costs per change in PWMC per person
+
+output$Hydrogen_PWMC_Costs_nox <- renderValueBox({
+  
+  req(hyd_nox_impacts())
+  
+  if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+    
+    hyd_pwmc_value_nox <- valueBox(
+      
+      round((((last(hyd_nox_impacts()$`Total Impact`)-first(hyd_nox_impacts()$`Total Impact`))) * (damage_costs_nox/-1000)), 4), 
+      "Hydrogen NOx Savings (£ per person)", icon = icon("atom"), color = "green")
+    
+    return(hyd_pwmc_value_nox)
+    
+    
+  }
+  
+  else {
+    
+    hyd_pwmc_value_nox <- valueBox(
+      
+      round((((last(hyd_nox_impacts()$`Total Impact per TWh`)-first(hyd_nox_impacts()$`Total Impact per TWh`))) * (damage_costs_nox/-1000)), 4), 
+      "Hydrogen NOx Savings (£ per person per TWh)", icon = icon("atom"), color = "green")
+    
+    return(hyd_pwmc_value_nox)
+    
+  }
+  
+  
+})
+  
+
+  ################################################################################
+  # Building Heating NOx Impacts - damage costs
+  
+  output$Heating_PWMC_Costs_nox <- renderValueBox({
+    
+    if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+      
+      heat_pwmc_value_nox <- valueBox(
+        
+        round(((((last(df_dh_nox_impacts()$`Total Impact`)+last(df_ph_nox_impacts()$`Total Impact`))-(first(df_dh_nox_impacts()$`Total Impact`)+first(df_ph_nox_impacts()$`Total Impact`))) * (damage_costs_nox/-1000))), 4), 
+        "Heating NOx Savings (£ per person)", icon = icon("house-fire"), color = "blue")
+      
+      return(heat_pwmc_value_nox)
+      
+      
+    }
+    
+    else {
+      
+      heat_pwmc_value_nox <- valueBox(
+        
+        round(((((last(df_dh_nox_impacts()$`Total Impact per TWh`)+last(df_ph_nox_impacts()$`Total Impact per TWh`))-(first(df_dh_nox_impacts()$`Total Impact per TWh`)+first(df_ph_nox_impacts()$`Total Impact per TWh`))) * (damage_costs_nox/-1000))), 4), 
+        "Heating NOx Savings (£ per person per TWh)", icon = icon("house-fire"), color = "blue")
+      
+      return(heat_pwmc_value_nox)
+      
+    }
+    
+    
+  })
+  
+  ################################################################################
+  # Industry NOx Impacts - damage costs
+  
+  output$Industry_PWMC_Costs_nox <- renderValueBox({
+    
+    req(input_ind_file()) # Needed to prevent initial error (not dealbreaker but ugly!)
+    req(ironsteel_nox_impacts())
+    req(nfm_nox_impacts())
+    req(chem_nox_impacts())
+    req(pap_nox_impacts())
+    req(food_nox_impacts())
+    req(min_nox_impacts())
+    req(text_nox_impacts())
+    req(con_nox_impacts())
+    req(other_nox_impacts())
+    
+    if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+      
+      ind_pwmc_value_nox <- valueBox(
+        
+        round(((((last(ironsteel_nox_impacts()$`Total Impact`)+last(nfm_nox_impacts()$`Total Impact`)+last(chem_nox_impacts()$`Total Impact`)+last(pap_nox_impacts()$`Total Impact`)+last(food_nox_impacts()$`Total Impact`)+last(min_nox_impacts()$`Total Impact`)+last(text_nox_impacts()$`Total Impact`)+last(con_nox_impacts()$`Total Impact`)+last(other_nox_impacts()$`Total Impact`))-(first(ironsteel_nox_impacts()$`Total Impact`)+first(nfm_nox_impacts()$`Total Impact`)+first(chem_nox_impacts()$`Total Impact`)+first(pap_nox_impacts()$`Total Impact`)+first(food_nox_impacts()$`Total Impact`)+first(min_nox_impacts()$`Total Impact`)+first(text_nox_impacts()$`Total Impact`)+first(con_nox_impacts()$`Total Impact`)+first(other_nox_impacts()$`Total Impact`))) * (damage_costs_nox/-1000))), 4), 
+        "Industry NOx Savings (£ per person)", icon = icon("industry"), color = "orange")
+      
+      return(ind_pwmc_value_nox)
+      
+      
+    }
+    
+    else {
+      
+      ind_pwmc_value_nox <- valueBox(
+        
+        round(((((last(ironsteel_nox_impacts()$`Total Impact per TWh`)+last(nfm_nox_impacts()$`Total Impact per TWh`)+last(chem_nox_impacts()$`Total Impact per TWh`)+last(pap_nox_impacts()$`Total Impact per TWh`)+last(food_nox_impacts()$`Total Impact per TWh`)+last(min_nox_impacts()$`Total Impact per TWh`)+last(text_nox_impacts()$`Total Impact per TWh`)+last(con_nox_impacts()$`Total Impact per TWh`)+last(other_nox_impacts()$`Total Impact per TWh`))-(first(ironsteel_nox_impacts()$`Total Impact per TWh`)+first(nfm_nox_impacts()$`Total Impact per TWh`)+first(chem_nox_impacts()$`Total Impact per TWh`)+first(pap_nox_impacts()$`Total Impact per TWh`)+first(food_nox_impacts()$`Total Impact per TWh`)+first(min_nox_impacts()$`Total Impact per TWh`)+first(text_nox_impacts()$`Total Impact per TWh`)+first(con_nox_impacts()$`Total Impact per TWh`)+first(other_nox_impacts()$`Total Impact per TWh`))) * (damage_costs_nox/-1000))), 4), 
+        "Industry NOx Savings (£ per person per TWh)", icon = icon("industry"), color = "orange")
+      
+      return(ind_pwmc_value_nox)
+      
+    }
+    
+    
+  })
+
+  
   #################################################################################################
   
+  # Electricity Generation PM2.5 Impacts - damage costs per change in PWMC per person
+  
+  output$Elec_PWMC_Costs_pm25 <- renderValueBox({
+    
+    req(df_elec_pm25_impacts())
+    
+    if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+      
+      elec_pwmc_value_pm25 <- valueBox(
+        
+        round((((last(df_elec_pm25_impacts()$`Total Impact`)-first(df_elec_pm25_impacts()$`Total Impact`))) * (damage_costs_pm25/-1000)), 4), 
+        "Electricity PM2.5 Savings (£ per person)", icon = icon("bolt"), color = "purple")
+      
+      return(elec_pwmc_value_pm25)
+      
+      
+    }
+    
+    else {
+      
+      elec_pwmc_value_pm25 <- valueBox(
+        
+        round((((last(df_elec_pm25_impacts()$`Total Impact`)-first(df_elec_pm25_impacts()$`Total Impact`))) * (damage_costs_pm25/-1000)), 4), 
+        "Electricity PM2.5 Savings (£ per person per TWh)", icon = icon("bolt"), color = "purple")
+      
+      return(elec_pwmc_value_pm25)
+      
+    }
+    
+    
+  })
+  
+  
+  ################################################################################
+  # Hydrogen Generation PM2.5 Impacts - damage costs per change in PWMC per person
+  
+  output$Hydrogen_PWMC_Costs_pm25 <- renderValueBox({
+    
+    req(hyd_pm25_impacts())
+    
+    if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+      
+      hyd_pwmc_value_pm25 <- valueBox(
+        
+        round((((last(hyd_pm25_impacts()$`Total Impact`)-first(hyd_pm25_impacts()$`Total Impact`))) * (damage_costs_pm25/-1000)), 4), 
+        "Hydrogen PM2.5 Savings (£ per person)", icon = icon("atom"), color = "green")
+      
+      return(hyd_pwmc_value_pm25)
+      
+      
+    }
+    
+    else {
+      
+      hyd_pwmc_value_pm25 <- valueBox(
+        
+        round((((last(hyd_pm25_impacts()$`Total Impact per TWh`)-first(hyd_pm25_impacts()$`Total Impact per TWh`))) * (damage_costs_pm25/-1000)), 4), 
+        "Hydrogen PM2.5 Savings (£ per person per TWh)", icon = icon("atom"), color = "green")
+      
+      return(hyd_pwmc_value_pm25)
+      
+    }
+    
+    
+  })
+  
+  
+  ################################################################################
+  # Building Heating PM2.5 Impacts - damage costs
+  
+  output$Heating_PWMC_Costs_pm25 <- renderValueBox({
+    
+    if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+      
+      heat_pwmc_value_pm25 <- valueBox(
+        
+        round(((((last(df_dh_pm25_impacts()$`Total Impact`)+last(df_ph_pm25_impacts()$`Total Impact`))-(first(df_dh_pm25_impacts()$`Total Impact`)+first(df_ph_pm25_impacts()$`Total Impact`))) * (damage_costs_pm25/-1000))), 4), 
+        "Heating PM2.5 Savings (£ per person)", icon = icon("house-fire"), color = "blue")
+      
+      return(heat_pwmc_value_pm25)
+      
+      
+    }
+    
+    else {
+      
+      heat_pwmc_value_pm25 <- valueBox(
+        
+        round(((((last(df_dh_pm25_impacts()$`Total Impact per TWh`)+last(df_ph_pm25_impacts()$`Total Impact per TWh`))-(first(df_dh_pm25_impacts()$`Total Impact per TWh`)+first(df_ph_pm25_impacts()$`Total Impact per TWh`))) * (damage_costs_pm25/-1000))), 4), 
+        "Heating PM2.5 Savings (£ per person per TWh)", icon = icon("house-fire"), color = "blue")
+      
+      return(heat_pwmc_value_pm25)
+      
+    }
+    
+    
+  })
+  
+  ################################################################################
+  # Industry PM2.5 Impacts - damage costs
+  
+  output$Industry_PWMC_Costs_pm25 <- renderValueBox({
+    
+    req(input_ind_file()) # Needed to prevent initial error (not dealbreaker but ugly!)
+    req(ironsteel_pm25_impacts())
+    req(nfm_pm25_impacts())
+    req(chem_pm25_impacts())
+    req(pap_pm25_impacts())
+    req(food_pm25_impacts())
+    req(min_pm25_impacts())
+    req(text_pm25_impacts())
+    req(con_pm25_impacts())
+    req(other_pm25_impacts())
+    
+    if(input$absolute_or_perUnit == "Absolute emissions/impacts") {
+      
+      ind_pwmc_value_pm25 <- valueBox(
+        
+        round(((((last(ironsteel_pm25_impacts()$`Total Impact`)+last(nfm_pm25_impacts()$`Total Impact`)+last(chem_pm25_impacts()$`Total Impact`)+last(pap_pm25_impacts()$`Total Impact`)+last(food_pm25_impacts()$`Total Impact`)+last(min_pm25_impacts()$`Total Impact`)+last(text_pm25_impacts()$`Total Impact`)+last(con_pm25_impacts()$`Total Impact`)+last(other_pm25_impacts()$`Total Impact`))-(first(ironsteel_pm25_impacts()$`Total Impact`)+first(nfm_pm25_impacts()$`Total Impact`)+first(chem_pm25_impacts()$`Total Impact`)+first(pap_pm25_impacts()$`Total Impact`)+first(food_pm25_impacts()$`Total Impact`)+first(min_pm25_impacts()$`Total Impact`)+first(text_pm25_impacts()$`Total Impact`)+first(con_pm25_impacts()$`Total Impact`)+first(other_pm25_impacts()$`Total Impact`))) * (damage_costs_pm25/-1000))), 4), 
+        "Industry PM2.5 Savings (£ per person)", icon = icon("industry"), color = "orange")
+      
+      return(ind_pwmc_value_pm25)
+      
+      
+    }
+    
+    else {
+      
+      ind_pwmc_value_pm25 <- valueBox(
+        
+        round(((((last(ironsteel_pm25_impacts()$`Total Impact per TWh`)+last(nfm_pm25_impacts()$`Total Impact per TWh`)+last(chem_pm25_impacts()$`Total Impact per TWh`)+last(pap_pm25_impacts()$`Total Impact per TWh`)+last(food_pm25_impacts()$`Total Impact per TWh`)+last(min_pm25_impacts()$`Total Impact per TWh`)+last(text_pm25_impacts()$`Total Impact per TWh`)+last(con_pm25_impacts()$`Total Impact per TWh`)+last(other_pm25_impacts()$`Total Impact per TWh`))-(first(ironsteel_pm25_impacts()$`Total Impact per TWh`)+first(nfm_pm25_impacts()$`Total Impact per TWh`)+first(chem_pm25_impacts()$`Total Impact per TWh`)+first(pap_pm25_impacts()$`Total Impact per TWh`)+first(food_pm25_impacts()$`Total Impact per TWh`)+first(min_pm25_impacts()$`Total Impact per TWh`)+first(text_pm25_impacts()$`Total Impact per TWh`)+first(con_pm25_impacts()$`Total Impact per TWh`)+first(other_pm25_impacts()$`Total Impact per TWh`))) * (damage_costs_pm25/-1000))), 4), 
+        "Industry PM2.5 Savings (£ per person per TWh)", icon = icon("industry"), color = "orange")
+      
+      return(ind_pwmc_value_pm25)
+      
+    }
+    
+    
+  })
+
+
 }
 
 shinyApp(ui = ui, server = server)
