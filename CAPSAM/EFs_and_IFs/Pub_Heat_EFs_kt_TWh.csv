@@ -1,7 +1,7 @@
-﻿Production,CO2,NOx,PM2.5
-Coal Boiler,93.6,0.648,0.2592
-Fuel Oil Boiler,79.2,0.36,0.0108
-Natural Gas,54,0.144,0.00162
-Wood/Biomass Boiler,19,0.756,0.1332
-Hydrogen-Natural Gas Boiler,43.2,0.1872,0.00162
-Hydrogen Boiler,0,0.104256,0
+﻿Production,CO2,NOx,PM2.5,SO2,NH3
+Coal Boiler,93.6,0.648,0.2592,2.010072308,0
+Fuel Oil Boiler,79.2,0.36,0.0108,1.200990994,0
+Natural Gas,54,0.144,0.00162,0.002412,0
+Wood/Biomass Boiler,19,0.756,0.1332,0.003055556,0
+Hydrogen-Natural Gas Boiler,43.2,0.1872,0.00162,0.002412,0
+Hydrogen Boiler,0,0.104256,0,0,0
