@@ -1,0 +1,88 @@
+﻿Technology,Split
+Car - Petrol - Euro 1,0
+Car - Petrol - Euro 2,0
+Car - Petrol - Euro 3,0
+Car - Petrol - Euro 4,0.05
+Car - Petrol - Euro 5a,0.02
+Car - Petrol - Euro 5b,0.03
+Car - Petrol - Euro 6b,0.3
+Car - Petrol - Euro 6c,0.4
+Car - Petrol - Euro 6d-Temp,0
+Car - Petrol - Euro 6d,0.2
+Car - Petrol - Euro 7,0
+Car - Diesel - Euro 1,0
+Car - Diesel - Euro 2,0
+Car - Diesel - Euro 3,0
+Car - Diesel - Euro 4,0.05
+Car - Diesel - Euro 5a,0.02
+Car - Diesel - Euro 5b,0.03
+Car - Diesel - Euro 6b,0.3
+Car - Diesel - Euro 6c,0.4
+Car - Diesel - Euro 6d-Temp,0
+Car - Diesel - Euro 6d,0.2
+Car - Diesel - Euro 7,0
+Car - PHEV (Petrol),1
+Car - PHEV (Diesel),1
+Car - Hydrogen Fuel Cell,1
+Car - BEV,1
+LGV - Petrol - Euro 1,0
+LGV - Petrol - Euro 2,0
+LGV - Petrol - Euro 3,0
+LGV - Petrol - Euro 4,0.05
+LGV - Petrol - Euro 5a,0.02
+LGV - Petrol - Euro 5b,0.03
+LGV - Petrol - Euro 6b,0.3
+LGV - Petrol - Euro 6c,0.4
+LGV - Petrol - Euro 6d-Temp,0
+LGV - Petrol - Euro 6d,0.2
+LGV - Petrol - Euro 7,0
+LGV - Diesel - Euro 1,0
+LGV - Diesel - Euro 2,0
+LGV - Diesel - Euro 3,0
+LGV - Diesel - Euro 4,0.05
+LGV - Diesel - Euro 5a,0.02
+LGV - Diesel - Euro 5b,0.03
+LGV - Diesel - Euro 6b,0.3
+LGV - Diesel - Euro 6c,0.4
+LGV - Diesel - Euro 6d-Temp,0
+LGV - Diesel - Euro 6d,0.2
+LGV - Diesel - Euro 7,0
+LGV - PHEV (Petrol),1
+LGV - PHEV (Diesel),1
+LGV - Hydrogen Fuel Cell,1
+LGV - BEV,1
+HGV - CNG - Euro 1,0
+HGV - CNG - Euro 2,0
+HGV - CNG - Euro 3,0
+HGV - CNG - EEV,1
+HGV - Diesel - Euro 1,0
+HGV - Diesel - Euro 2,0
+HGV - Diesel - Euro 3,0
+HGV - Diesel - Euro 4,0
+HGV - Diesel - Euro 5,0.4
+HGV - Diesel - Euro 6,0.6
+HGV - Diesel - Euro 7,0
+HGV - PHEV (Diesel),1
+HGV - Hydrogen Fuel Cell,1
+HGV - BEV,1
+Bus - CNG - Euro 1,0
+Bus - CNG - Euro 2,0
+Bus - CNG - Euro 3,0
+Bus - CNG - EEV,1
+Bus - Diesel - Euro 1,0
+Bus - Diesel - Euro 2,0
+Bus - Diesel - Euro 3,0
+Bus - Diesel - Euro 4,0
+Bus - Diesel - Euro 5,0.4
+Bus - Diesel - Euro 6,0.6
+Bus - Diesel - Euro 7,0
+Bus - PHEV (Diesel),1
+Bus - Hydrogen Fuel Cell,1
+Bus - BEV,1
+Motorcycle - Petrol - Euro 1,0
+Motorcycle - Petrol - Euro 2,0
+Motorcycle - Petrol - Euro 3,0
+Motorcycle - Petrol - Euro 4,0.4
+Motorcycle - Petrol - Euro 5,0.6
+Motorcycle - Hydrogen Fuel Cell,1
+Motorcycle - Electric,1
